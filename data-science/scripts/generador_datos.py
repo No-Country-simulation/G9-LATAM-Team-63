@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def generar_dataset_inicial(n=1500, seed=42, output_path='../data-science/data/processed/dataset_inicial.csv'):
+def generar_dataset_inicial(n=1500, seed=42, output_path='../data/processed/dataset_inicial.csv'):
 
     np.random.seed(seed)
     
