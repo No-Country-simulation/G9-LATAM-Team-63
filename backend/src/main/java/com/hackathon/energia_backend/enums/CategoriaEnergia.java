@@ -7,9 +7,9 @@ import lombok.Getter;
  */
 @Getter
 public enum CategoriaEnergia {
-    INEFICIENTE("Ineficiente", 0.81),
-    MODERADO("Moderado", 0.65),
-    EFICIENTE("Eficiente", 0.90);
+    INEFICIENTE("Ineficiente", 0.75),
+    MODERADO("Moderado", 0.70),
+    EFICIENTE("Eficiente", 0.85);
 
     private final String nombre;
     private final double probabilidadBase;

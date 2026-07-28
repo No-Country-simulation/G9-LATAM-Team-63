@@ -9,8 +9,10 @@ import lombok.Getter;
 @Getter
 public enum TipoInmueble {
     CASA("Casa"),
-    DEPTO("Depto"),
-    LOCAL("Local");
+    DEPTO("Apartamento"),
+    LOCAL("Local"),
+    OFICINA("Oficina");
+
 
     private final String valor;
 
