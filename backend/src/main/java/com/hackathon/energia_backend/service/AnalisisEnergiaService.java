@@ -1,6 +1,5 @@
 package com.hackathon.energia_backend.service;
 
-// Importaciones de configuración, DTOs (objetos de transferencia de datos), entidad, enums, excepciones y repositorio del proyecto
 import com.hackathon.energia_backend.config.AppConfig;
 import com.hackathon.energia_backend.dto.request.AnalisisRequest;
 import com.hackathon.energia_backend.dto.response.AnalisisResponse;
@@ -8,86 +7,106 @@ import com.hackathon.energia_backend.entity.ResultadoAnalisis;
 import com.hackathon.energia_backend.enums.CategoriaEnergia;
 import com.hackathon.energia_backend.exception.ResourceNotFoundException;
 import com.hackathon.energia_backend.repository.ResultadoAnalisisRepository;
-
-// Lombok para generar automáticamente el constructor con los campos 'final'
 import lombok.RequiredArgsConstructor;
-
-// Anotación de Spring que marca esta clase como un componente de capa de servicio (lógica de negocio)
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Servicio de negocio para el análisis de consumo energético.
+ *
+ * Esta clase encapsula la lógica de negocio principal de la aplicación,
+ * coordinando la validación de datos, el procesamiento del análisis,
+ * la persistencia en base de datos y la generación de recomendaciones
+ * personalizadas basadas en patrones de consumo.
+ */
 @Service
-@RequiredArgsConstructor // Genera un constructor que inyecta automáticamente las dependencias 'final' (como el repository)
+@RequiredArgsConstructor
 public class AnalisisEnergiaService {
 
-    // Inyección de dependencia del repositorio para interactuar con la base de datos (operaciones CRUD)
+    // ============================================
+    // Inyección de Dependencias
+    // Repositorio para operaciones de persistencia
+    // de la entidad ResultadoAnalisis
+    // ============================================
     private final ResultadoAnalisisRepository repository;
 
     /**
-     * Método principal que realiza el análisis de consumo energético.
-     * Recibe una solicitud (Request), procesa los datos, guarda el resultado en la base de datos
-     * y devuelve una respuesta (Response) con el análisis completo.
+     * Procesa una solicitud de análisis energético completo.
      *
-     * @param request Datos de entrada del usuario (consumo, horarios, equipos, tipo de inmueble).
-     * @return AnalisisResponse con los resultados del análisis y recomendaciones.
+     * @param req Objeto DTO con los datos de entrada del análisis.
+     * @return {@link AnalisisResponse} con los resultados del análisis,
+     *         incluyendo categoría, costo estimado y recomendaciones.
      */
-    public AnalisisResponse realizarAnalisis(AnalisisRequest request) {
+    // ============================================
+    // Método Principal: Realizar Análisis Energético
+    // Flujo:
+    // 1. Determina la categoría de eficiencia energética
+    // 2. Calcula el costo estimado mensual
+    // 3. Persiste el resultado en la base de datos
+    // 4. Construye y retorna la respuesta al cliente
+    // ============================================
+    public AnalisisResponse realizarAnalisis(AnalisisRequest req) {
+        // Determinar la categoría de eficiencia basada en las reglas de negocio
+        CategoriaEnergia categoria = determinarCategoria(req);
 
-        // 1. Calcular el costo estimado multiplicando el consumo en kWh por la tarifa definida en la configuración
-        double costo = request.getConsumoKwh() * AppConfig.TARIFA_KWH;
+        // Calcular costo estimado aplicando la tarifa configurada
+        double costo = req.getConsumoKwh() * AppConfig.TARIFA_KWH;
 
-        // 2. Determinar la categoría de eficiencia energética (EFICIENTE, MODERADO, INEFICIENTE) según las reglas de negocio
-        CategoriaEnergia categoria = determinarCategoria(request);
-
-        // 3. Generar una lista de recomendaciones personalizadas basadas en la categoría y los datos de la solicitud
-        List<String> recomendaciones = generarRecomendaciones(categoria, request);
-
-        // 4. Crear la entidad de JPA usando el patrón Builder y guardarla en la base de datos
-        ResultadoAnalisis entidad = ResultadoAnalisis.builder()
-                .consumoKwh(request.getConsumoKwh())
-                .usoHorarioPico(request.getUsoHorarioPico())
-                .cantidadEquipos(request.getCantidadEquipos())
-                .tipoInmueble(request.getTipoInmueble())
-                .categoria(categoria.getNombre()) // Guarda el nombre del enum como String en la BD
+        // ============================================
+        // Paso 1: Persistir en Base de Datos
+        // Construye la entidad desde el DTO de request
+        // y la guarda utilizando el repositorio JPA
+        // ============================================
+        ResultadoAnalisis guardado = repository.save(ResultadoAnalisis.builder()
+                .consumoKwh(req.getConsumoKwh())
+                .usoHorarioPico(req.getUsoHorarioPico())
+                .cantidadEquipos(req.getCantidadEquipos())
+                .tipoInmueble(req.getTipoInmueble())
+                .categoria(categoria.getNombre())
                 .probabilidad(categoria.getProbabilidadBase())
                 .costoEstimadoMensual(costo)
-                .build();
+                .build());
 
-        // Guarda la entidad en la base de datos y obtiene el registro con su ID generado
-        ResultadoAnalisis guardado = repository.save(entidad);
-
-        // 5. Construir y retornar la respuesta (DTO) al cliente, incluyendo el ID del registro recién guardado
+        // ============================================
+        // Paso 2: Construir Respuesta al Cliente
+        // Transforma la entidad guardada en DTO de respuesta
+        // incluyendo recomendaciones personalizadas
+        // ============================================
         return AnalisisResponse.builder()
                 .categoria(categoria.getNombre())
                 .probabilidad(categoria.getProbabilidadBase())
-                .recomendaciones(recomendaciones)
+                .recomendaciones(generarRecomendaciones(categoria, req))
                 .costoEstimadoMensual(costo)
                 .idAnalisis(guardado.getId())
                 .build();
     }
 
     /**
-     * Consulta un análisis previamente guardado en la base de datos por su ID.
+     * Consulta un análisis previamente guardado por su identificador único.
      *
-     * @param id Identificador único del análisis.
-     * @return AnalisisResponse con los datos del análisis y recomendaciones recalculadas.
-     * @throws ResourceNotFoundException si no se encuentra ningún registro con el ID proporcionado.
+     * @param id Identificador del análisis a consultar.
+     * @return {@link AnalisisResponse} con los datos del análisis encontrado.
+     * @throws ResourceNotFoundException si no existe un análisis con el ID proporcionado.
      */
+    // ============================================
+    // Método: Consultar Análisis por ID
+    // Recupera un registro existente de la BD
+    // y lo transforma en DTO de respuesta
+    // ============================================
     public AnalisisResponse consultarPorId(Long id) {
-
-        // Busca el registro en la BD. Si no existe, lanza una excepción personalizada de recurso no encontrado
+        // Buscar en BD o lanzar excepción si no existe
         ResultadoAnalisis entidad = repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Análisis no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Análisis no encontrado con ID: " + id));
 
-        // Convierte el nombre de la categoría almacenado en String de vuelta a su tipo Enum para poder usarlo
+        // Convertir el string almacenado a enum para procesamiento
         CategoriaEnergia categoria = CategoriaEnergia.valueOf(entidad.getCategoria().toUpperCase());
 
-        // Construye y retorna la respuesta.
-        // Nota: Se pasa 'null' como request en las recomendaciones porque no tenemos el objeto original,
-        // pero el método 'generarRecomendaciones' está diseñado para manejar ese caso de forma segura.
+        // ============================================
+        // Construir Respuesta desde Entidad Persistida
+        // solo basándose en la categoría
+        // ============================================
         return AnalisisResponse.builder()
                 .categoria(entidad.getCategoria())
                 .probabilidad(entidad.getProbabilidad())
@@ -98,54 +117,80 @@ public class AnalisisEnergiaService {
     }
 
     /**
-     * Método privado auxiliar que aplica las reglas de negocio para clasificar el consumo energético.
+     * Clasifica el consumo energético según las reglas de negocio.
      *
-     * @param request Datos de la solicitud del usuario.
-     * @return La categoría de energía correspondiente (Enum).
+     * @param req Datos de entrada del análisis.
+     * @return {@link CategoriaEnergia} que representa la eficiencia del consumo.
      */
-    private CategoriaEnergia determinarCategoria(AnalisisRequest request) {
-        // Si el consumo es alto (>400 kWh) Y además se usa en horario pico, se considera INEFICIENTE
-        if (request.getConsumoKwh() > 400 && request.getUsoHorarioPico()) {
-            return CategoriaEnergia.INEFICIENTE;
-        }
-        // Si el consumo es bajo (<200 kWh) Y NO se usa en horario pico, se considera EFICIENTE
-        else if (request.getConsumoKwh() < 200 && !request.getUsoHorarioPico()) {
-            return CategoriaEnergia.EFICIENTE;
-        }
-        // Cualquier otro caso intermedio se clasifica como MODERADO
+    // ============================================
+    // Método Privado: Determinar Categoría Energética
+    // Aplica las mismas reglas de clasificación
+    // Criterios:
+    // - Ratio kWh/equipo > 55 y horas > 7 → INEFICIENTE
+    // - Ratio kWh/equipo < 28 y horas < 4 → EFICIENTE
+    // - Cualquier otro caso → MODERADO
+    // ============================================
+    private CategoriaEnergia determinarCategoria(AnalisisRequest req) {
+        double ratio = req.getConsumoKwh() / req.getCantidadEquipos();
+        int horas = req.getHorasAltoConsumo();
+
+        if (ratio > 55 && horas > 7) return CategoriaEnergia.INEFICIENTE;
+        if (ratio < 28 && horas < 4) return CategoriaEnergia.EFICIENTE;
         return CategoriaEnergia.MODERADO;
     }
 
     /**
-     * Método privado auxiliar que genera una lista de recomendaciones de ahorro energético.
+     * Genera recomendaciones personalizadas basadas en la categoría y patrones de consumo.
      *
-     * @param categoria La categoría de eficiencia ya determinada.
-     * @param request   Los datos originales de la solicitud (puede ser null si se consulta desde la BD).
-     * @return Lista de strings con las recomendaciones aplicables.
+     * @param cat Categoría de eficiencia energética determinada.
+     * @param req Datos originales del análisis (puede ser null si se consulta desde BD).
+     * @return Lista de recomendaciones aplicables al caso específico.
      */
-    private List<String> generarRecomendaciones(CategoriaEnergia categoria, AnalisisRequest request) {
-        List<String> recomendaciones = new ArrayList<>();
+    // ============================================
+    // Método Privado: Generar Recomendaciones
+    // Construye un conjunto de sugerencias dinámicas
+    // combinando:
+    // 1. Recomendaciones base según la categoría
+    // 2. Reglas adicionales transversales según
+    //    tipo de inmueble y cantidad de equipos
+    // ============================================
+    private List<String> generarRecomendaciones(CategoriaEnergia cat, AnalisisRequest req) {
+        List<String> recs = new ArrayList<>();
 
-        // Selecciona las recomendaciones base según la categoría evaluada usando un switch moderno de Java
-        switch (categoria) {
+        // ============================================
+        // Regla 1: Recomendaciones Base por Categoría
+        // Utiliza switch moderno de Java
+        // para mayor legibilidad y mantenibilidad
+        // ============================================
+        switch (cat) {
             case INEFICIENTE -> {
-                recomendaciones.add("Reducir el uso de equipos durante los horarios pico");
-                recomendaciones.add("Evaluar equipos con alto consumo energético");
+                recs.add("Reducir las horas de alto consumo (actualmente > 7h)");
+                recs.add("Evaluar equipos con alto consumo por unidad (ratio kWh/equipo alto)");
+                if (req != null && req.getUsoHorarioPico()) recs.add("Desplazar el consumo a horarios no pico");
             }
             case EFICIENTE -> {
-                recomendaciones.add("Mantener las prácticas actuales de consumo");
-                recomendaciones.add("Monitorear periódicamente el consumo");
+                recs.add("Mantener las prácticas actuales de consumo");
+                recs.add("Monitorear periódicamente el consumo para asegurar la eficiencia");
             }
-            case MODERADO -> recomendaciones.add("Identificar oportunidades de ahorro en horarios pico");
+            case MODERADO -> {
+                recs.add("Identificar oportunidades de ahorro en horarios pico");
+                if (req != null && (req.getConsumoKwh() / req.getCantidadEquipos()) > 40) {
+                    recs.add("Revisar equipos individuales con mayor consumo para optimizar el ratio");
+                }
+            }
         }
 
-        // Regla de negocio adicional: si tenemos el request y la cantidad de equipos es mayor a 10,
-        // se agrega una recomendación extra independientemente de la categoría.
-        // La validación 'request != null' evita un NullPointerException cuando se llama desde consultarPorId.
-        if (request != null && request.getCantidadEquipos() > 10) {
-            recomendaciones.add("Considerar reemplazo de equipos antiguos por modelos eficientes");
+        // ============================================
+        // Regla 2: Recomendaciones Transversales
+        // Se aplican independientemente de la categoría
+        // ============================================
+        if (req != null) {
+            if ("Oficina".equalsIgnoreCase(req.getTipoInmueble()))
+                recs.add("Implementar apagado automático de equipos al cierre de jornada");
+            if (req.getCantidadEquipos() > 10)
+                recs.add("Considerar el reemplazo de equipos antiguos por modelos con certificación energética");
         }
 
-        return recomendaciones;
+        return recs;
     }
 }

@@ -1,30 +1,40 @@
 package com.hackathon.energia_backend.repository;
 
-
 import com.hackathon.energia_backend.entity.ResultadoAnalisis;
-
-/** Traigo JpaRepository, que es una herramienta de Spring que ya trae hechos los métodos
- * para guardar, buscar, borrar y actualizar en la base de datos
- */
 import org.springframework.data.jpa.repository.JpaRepository;
-
-/**Es como ponerle una etiqueta que le dice a Spring:
- * esta clase se encarga de hablar con la base de datos*
- */
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
 /**
- * Interfaz de repositorio. Spring Data JPA implementa los métodos CRUD automáticamente.
- * No es necesario escribir SQL para operaciones básicas.
- */
-
-/** le dice a spring esto es un repositorio encargese de crearla y gestionarla automaticamente */
+ * Interfaz de repositorio para la entidad {@link ResultadoAnalisis}.
+ *
+ * Extiende de {@link JpaRepository} para aprovechar las capacidades de
+ * Spring Data JPA, las cuales proporcionan:
+ * <ul>
+ *   <li><b>Implementación automática de CRUD:</b> Operaciones básicas (save, findById, findAll, delete)
+ *       sin necesidad de escribir código repetitivo ni SQL manual.</li>
+ *   <li><b>Patrón Repositorio:</b> Abstrae la capa de persistencia, desacoplando la lógica de negocio
+ *       del acceso directo a la base de datos.</li>
+ *   <li><b>Traducción de excepciones:</b> Convierte las excepciones nativas de la base de datos
+ *       en la jerarquía unificada de Spring ({@link org.springframework.dao.DataAccessException}).</li>
+ * </ul>
+  */
 @Repository
-
-/** crea una interface como un contrato y hereda todo de JpaRepository */
 public interface ResultadoAnalisisRepository extends JpaRepository<ResultadoAnalisis, Long> {
 
-    /** Spring genera la consulta SQL automáticamente basándose en el nombre del método */
+    // ============================================
+    // Consultas Derivadas (Query Derivation)
+    // Spring Data JPA genera la consulta SQL dinámicamente
+    // en tiempo de ejecución, analizando la firma del método
+    // (findBy + NombreDelCampo).
+    // ============================================
+
+    /**
+     * Busca todos los registros de análisis que coincidan con una categoría específica.
+     *
+     * @param categoria El nombre de la categoría a filtrar (ej. "Eficiente", "Moderado").
+     * @return Una lista de {@link ResultadoAnalisis} que cumplen con el criterio de búsqueda.
+     */
     List<ResultadoAnalisis> findByCategoria(String categoria);
 }

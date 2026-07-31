@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energia Backend API - Documentación</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo-section h1 {
+            font-size: 1.5rem; font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .logo-section p { color: #718096; font-size: 0.875rem; margin-top: 0.25rem; }
+        .auth-section { display: flex; align-items: center; gap: 1rem; }
+        .status-badge { padding: 0.5rem 1rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .status-badge.not-authenticated { background: #fed7d7; color: #c53030; border: 2px solid #fc8181; }
+        .status-badge.authenticated { background: #c6f6d5; color: #22543d; border: 2px solid #68d391; }
+        .btn-logout { background: #e53e3e; color: white; border: none; padding: 0.5rem 1.25rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; font-size: 0.875rem; }
+        .btn-logout:hover { background: #c53030; }
+        .main-container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .info-card { background: white; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .info-card h2 { font-size: 1.25rem; font-weight: 600; color: #2d3748; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .info-card ol { padding-left: 1.5rem; color: #4a5568; line-height: 1.8; }
+        .info-card li { margin-bottom: 0.5rem; }
+        .info-card code { background: #edf2f7; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.875rem; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4); }
+        #swagger-ui { background: white; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 500px; }
+        .swagger-ui .topbar, .swagger-ui .info, .swagger-ui .scheme-container { display: none !important; }
+        .hidden-section { display: none !important; }
+        .alert { padding: 1rem 1.5rem; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: 500; }
+        .alert-danger { background: #fed7d7; border-left: 4px solid #e53e3e; color: #c53030; }
+        .alert-success { background: #c6f6d5; border-left: 4px solid #48bb78; color: #22543d; }
+        .auth-input-section { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem; margin: 1.5rem 0; }
+        .auth-input-section h3 { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: 1rem; }
+        .token-input-wrapper { display: flex; align-items: center; background: white; border: 2px solid #cbd5e0; border-radius: 0.5rem; overflow: hidden; margin-bottom: 1rem; }
+        .token-input-wrapper:focus-within { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .token-prefix { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.75rem 1rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.875rem; font-weight: 600; white-space: nowrap; user-select: none; }
+        .token-input { flex: 1; border: none; padding: 0.75rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.875rem; outline: none; }
+        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .btn-secondary { background: #4a5568; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; }
+        .btn-secondary:hover { background: #2d3748; }
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="header-content">
+        <div class="logo-section">
+            <h1>⚡ Energia Backend API</h1>
+            <p>Documentación interactiva - Hackathon 2026</p>
+        </div>
+        <div class="auth-section">
+            <div id="status-badge" class="status-badge not-authenticated">🔒 No Autenticado</div>
+            <button id="btn-logout" class="btn-logout" onclick="forceLogout()" style="display: none;">🚪 Cerrar Sesión</button>
+        </div>
+    </div>
+</header>
+
+<div class="main-container">
+    <div class="alert alert-danger" id="auth-required-banner">
+        <strong>🔐 Autenticación Requerida:</strong> Debes iniciar sesión para acceder a los endpoints protegidos.
+    </div>
+    <div class="alert alert-success" id="auth-success-banner" style="display: none;">
+        <strong>✅ Autenticación Exitosa:</strong> Tienes acceso a todos los endpoints protegidos.
+    </div>
+
+    <div class="info-card">
+        <h2>📋 Instrucciones de Uso</h2>
+        <ol>
+            <li>Haz login en el endpoint <code>POST /api/auth/login</code> (más abajo)</li>
+            <li>Copia el <strong>token JWT</strong> de la respuesta (solo el token, sin "Bearer")</li>
+            <li>Pega el token en el campo de abajo (el prefijo "Bearer" ya está incluido)</li>
+            <li>Haz clic en <strong>"Aplicar Token"</strong></li>
+            <li>La sección <strong>"2. Análisis Energético"</strong> aparecerá automáticamente</li>
+        </ol>
+
+        <div class="auth-input-section">
+            <h3>🔑 Ingresar Token de Autenticación</h3>
+            <div class="token-input-wrapper">
+                <div class="token-prefix">Bearer</div>
+                <input type="text" id="token-input" class="token-input" placeholder="eyJhbGciOiJIUzI1NiJ9...">
+            </div>
+            <div class="btn-group">
+                <button class="btn-primary" onclick="applyToken()">✅ Aplicar Token</button>
+                <button class="btn-secondary" onclick="clearToken()">🗑️ Limpiar Token</button>
+                <button class="btn-secondary" onclick="checkAndToggle()">🔄 Verificar Estado</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="swagger-ui"></div>
+</div>
+
+<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+<script>
+    let uiInstance = null;
+    let currentToken = null;
+
+    // INTERCEPTOR: Agrega el token a las peticiones de la API protegida
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options = {}) {
+        if (currentToken && typeof url === 'string' && (url.includes('/api/analisis') || url.includes('/api/usuarios'))) {
+            if (!options.headers) options.headers = {};
+            if (options.headers instanceof Headers) {
+                options.headers.set('Authorization', currentToken);
+            } else {
+                options.headers['Authorization'] = currentToken;
+            }
+        }
+        return originalFetch.call(this, url, options);
+    };
+
+    const originalXHROpen = XMLHttpRequest.prototype.open;
+    const originalXHRSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+        this._url = url;
+        return originalXHROpen.apply(this, [method, url, ...args]);
+    };
+    XMLHttpRequest.prototype.send = function(body) {
+        if (currentToken && this._url && (this._url.includes('/api/analisis') || this._url.includes('/api/usuarios'))) {
+            this.setRequestHeader('Authorization', currentToken);
+        }
+        return originalXHRSend.apply(this, [body]);
+    };
+
+    function applyToken() {
+        let token = document.getElementById('token-input').value.trim();
+        if (!token) { alert('❌ Por favor ingresa el token'); return; }
+        if (token.startsWith('Bearer ')) token = token.substring(7);
+        else if (token.startsWith('Bearer')) token = token.substring(6);
+
+        currentToken = 'Bearer ' + token;
+        localStorage.setItem('swagger-ui-authorizations', JSON.stringify({
+            "Bearer": { "schema": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }, "value": currentToken }
+        }));
+        alert('✅ Token aplicado correctamente!');
+        checkAndToggle();
+    }
+
+    function clearToken() {
+        document.getElementById('token-input').value = '';
+        currentToken = null;
+        localStorage.removeItem('swagger-ui-authorizations');
+        updateUI(false);
+        hideAnalisisSection();
+    }
+
+    function forceLogout() {
+        clearToken();
+        window.location.reload();
+    }
+
+    function hideAnalisisSection() {
+        document.querySelectorAll('.opblock-tag-section').forEach(section => {
+            if (section.querySelector('.opblock-tag')?.textContent.trim().includes('2. Análisis Energético')) {
+                section.classList.add('hidden-section');
+                section.style.display = 'none';
+            }
+        });
+    }
+
+    function showAnalisisSection() {
+        document.querySelectorAll('.opblock-tag-section').forEach(section => {
+            if (section.querySelector('.opblock-tag')?.textContent.trim().includes('2. Análisis Energético')) {
+                section.classList.remove('hidden-section');
+                section.style.display = 'block';
+                section.classList.add('is-open');
+            }
+        });
+    }
+
+    function checkAuthentication() {
+        return currentToken !== null && currentToken.length > 20;
+    }
+
+    function updateUI(isAuthenticated) {
+        const badge = document.getElementById('status-badge');
+        const btnLogout = document.getElementById('btn-logout');
+        const reqBanner = document.getElementById('auth-required-banner');
+        const sucBanner = document.getElementById('auth-success-banner');
+
+        if (isAuthenticated) {
+            badge.className = 'status-badge authenticated';
+            badge.innerHTML = '✅ Autenticado';
+            btnLogout.style.display = 'block';
+            reqBanner.style.display = 'none';
+            sucBanner.style.display = 'block';
+            showAnalisisSection();
+        } else {
+            badge.className = 'status-badge not-authenticated';
+            badge.innerHTML = '🔒 No Autenticado';
+            btnLogout.style.display = 'none';
+            reqBanner.style.display = 'block';
+            sucBanner.style.display = 'none';
+            hideAnalisisSection();
+        }
+    }
+
+    function checkAndToggle() {
+        updateUI(checkAuthentication());
+    }
+
+    window.onload = function() {
+        localStorage.removeItem('swagger-ui-authorizations');
+        currentToken = null;
+
+        uiInstance = SwaggerUIBundle({
+            url: "/v3/api-docs",
+            dom_id: '#swagger-ui',
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+            layout: "StandaloneLayout",
+            docExpansion: "list",
+            defaultModelsExpandDepth: 0,
+            defaultModelExpandDepth: 0,
+            onComplete: function() {
+                hideAnalisisSection();
+                updateUI(false);
+            }
+        });
+    };
+</script>
+</body>
+</html>
