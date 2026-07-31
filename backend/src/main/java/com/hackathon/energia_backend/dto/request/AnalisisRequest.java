@@ -28,8 +28,7 @@ public class AnalisisRequest {
     private Integer cantidadEquipos;
 
     @NotNull(message = "El tipo de inmueble es obligatorio")
-    @Pattern(regexp = "^(Casa|Apartamento|Local|Oficina)$",
-            message = "El tipo debe ser Casa, Apartamento, Local u Oficina")
+    @Pattern(regexp = "^(Casa|Depto|Local)$", message = "El tipo debe ser Casa, Depto o Local")
     private String tipoInmueble;
 
     @NotNull(message = "Las horas de alto consumo son obligatorias")
