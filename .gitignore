@@ -1,0 +1,28 @@
+# Build directories
+backend/target/
+target/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.iml
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
