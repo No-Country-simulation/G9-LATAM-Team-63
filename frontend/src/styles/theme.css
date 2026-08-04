@@ -1,0 +1,229 @@
+/* ============================================
+   TEMA OSCURO + VIEW TRANSITIONS API
+   ============================================ */
+
+:root {
+  color-scheme: light;
+  --expo-in: linear(
+    0 0%, 0.0085 31.26%, 0.0167 40.94%,
+    0.0289 48.86%, 0.0471 55.92%,
+    0.0717 61.99%, 0.1038 67.32%,
+    0.1443 72.07%, 0.1989 76.7%,
+    0.2659 80.89%, 0.3465 84.71%,
+    0.4419 88.22%, 0.554 91.48%,
+    0.6835 94.51%, 0.8316 97.34%, 1 100%
+  );
+  --expo-out: linear(
+    0 0%, 0.1684 2.66%, 0.3165 5.49%,
+    0.446 8.52%, 0.5581 11.78%,
+    0.6535 15.29%, 0.7341 19.11%,
+    0.8011 23.3%, 0.8557 27.93%,
+    0.8962 32.68%, 0.9283 38.01%,
+    0.9529 44.08%, 0.9711 51.14%,
+    0.9833 59.06%, 0.9915 68.74%, 1 100%
+  );
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* ============================================
+   Paleta oscura — Corporate Blue nocturno
+   ============================================ */
+.dark {
+  --color-bg-primary: #0d1526;
+  --color-bg-secondary: #131e35;
+  --color-bg-card: #111b30;
+  --color-bg-card-hover: #182542;
+  --color-bg-section-alt: #0f1930;
+
+  --color-accent-primary: #60a5fa;
+  --color-accent-secondary: #3b82f6;
+  --color-accent-tertiary: #93c5fd;
+  --color-accent-warn: #fbbf24;
+  --color-accent-danger: #f87171;
+  --color-accent-success: #34d399;
+
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  --color-border: #1f2d47;
+  --color-border-accent: #2f4a75;
+
+  --gradient-hero: linear-gradient(135deg, #0e1830 0%, #12284f 50%, #0d1526 100%);
+  --gradient-accent: linear-gradient(135deg, #2563eb, #60a5fa);
+  --gradient-card: linear-gradient(145deg, #131e35, #0d1526);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 8px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 20px -4px rgba(0, 0, 0, 0.55), 0 6px 10px -4px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 24px 32px -6px rgba(0, 0, 0, 0.6), 0 12px 16px -6px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   Ajustes puntuales de componentes en oscuro
+   (la mayoría usa variables y se adapta sola)
+   ============================================ */
+.dark .navbar.scrolled {
+  background: rgba(11, 18, 32, 0.85);
+}
+
+.dark .demo-endpoint {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dark .section-label {
+  color: var(--color-accent-tertiary);
+  background: rgba(96, 165, 250, 0.12);
+  border-color: rgba(96, 165, 250, 0.25);
+}
+
+.dark .section-label::before {
+  background: var(--color-accent-tertiary);
+}
+
+.dark .how-it-works__bg {
+  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+}
+
+.dark .hero__bg-grid {
+  background-image:
+    linear-gradient(rgba(96, 165, 250, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 165, 250, 0.06) 1px, transparent 1px);
+}
+
+.dark .hero__orb1 {
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.14) 0%, transparent 70%);
+}
+
+.dark .hero__orb2 {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+}
+
+.dark .hero__badge {
+  background: rgba(96, 165, 250, 0.12);
+  border-color: rgba(96, 165, 250, 0.25);
+}
+
+.dark .feature-card__icon--blue,
+.dark .float-badge__icon--blue {
+  background: rgba(96, 165, 250, 0.14);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+.dark .feature-card__icon--sky {
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.dark .feature-card__icon--amber,
+.dark .float-badge__icon--amber {
+  background: rgba(251, 191, 36, 0.14);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.dark .feature-card__icon--green {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.dark .feature-card__icon--purple {
+  background: rgba(167, 139, 250, 0.14);
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.dark .feature-card__icon--teal {
+  background: rgba(45, 212, 191, 0.14);
+  border-color: rgba(45, 212, 191, 0.3);
+}
+
+/* ============================================
+   Botón de alternar tema
+   ============================================ */
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  color: var(--color-accent-primary);
+  border-color: var(--color-border-accent);
+  transform: translateY(-1px);
+}
+
+.theme-toggle:active {
+  transform: scale(0.94);
+}
+
+.theme-toggle svg {
+  display: block;
+}
+
+/* ============================================
+   View Transitions API — reveal diagonal con clip-path
+   (más liviano para el GPU que el mask SVG, sin lag)
+   ============================================ */
+::view-transition-group(root) {
+  animation-duration: 0.7s;
+  animation-timing-function: var(--expo-out);
+}
+
+::view-transition-new(root) {
+  animation-name: reveal-light;
+  animation-fill-mode: both;
+  will-change: clip-path;
+}
+
+::view-transition-old(root),
+.dark::view-transition-old(root) {
+  animation: none;
+  animation-fill-mode: both;
+  z-index: -1;
+}
+
+.dark::view-transition-new(root) {
+  animation-name: reveal-dark;
+  animation-fill-mode: both;
+  will-change: clip-path;
+}
+
+@keyframes reveal-dark {
+  from {
+    clip-path: polygon(50% -71%, -50% 71%, -50% 71%, 50% -71%);
+  }
+  to {
+    clip-path: polygon(50% -71%, -50% 71%, 50% 171%, 171% 50%);
+  }
+}
+
+@keyframes reveal-light {
+  from {
+    clip-path: polygon(171% 50%, 50% 171%, 50% 171%, 171% 50%);
+  }
+  to {
+    clip-path: polygon(171% 50%, 50% 171%, -50% 71%, 50% -71%);
+  }
+}
+
+/* ============================================
+   Accesibilidad: respeta prefers-reduced-motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
