@@ -1,13 +1,17 @@
 package com.hackathon.energia_backend.security;
 
+import com.hackathon.energia_backend.entity.Usuario;
+import com.hackathon.energia_backend.repository.UsuarioRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,6 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // Utilidad para validación y extracción de datos del token JWT
     // ============================================
     private final JwtUtil jwtUtil;
+
+    @Autowired
+    private UsuarioRepository repository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -63,6 +70,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // ============================================
         if (jwtUtil.validateToken(token)) {
             String username = jwtUtil.extractUsername(token);
+            Usuario usuario = repository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
             // ============================================
             // Paso 5: Crear Autoridad de Seguridad
