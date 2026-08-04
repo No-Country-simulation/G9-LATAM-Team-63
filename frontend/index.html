@@ -1,10 +1,37 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="color-scheme" content="light dark" />
+    <title>EnergiAI – Análisis Inteligente de Consumo Eléctrico</title>
+    <meta name="description" content="EnergiAI analiza tu consumo eléctrico con Machine Learning, clasifica tu perfil energético y te da recomendaciones personalizadas para ahorrar en tu factura." />
+    <meta name="keywords" content="eficiencia energética, inteligencia artificial, análisis consumo eléctrico, ahorro energía, EnergiAI, OCI" />
+    <meta property="og:title" content="EnergiAI – Ahorra en tu consumo eléctrico" />
+    <meta property="og:description" content="Descubre tu perfil energético, identifica desperdicios y recibe recomendaciones de IA para reducir tu factura." />
+    <script>
+      (function () {
+        // Aplica el tema antes del primer paint para evitar parpadeos
+        try {
+          var saved = localStorage.getItem('energiai-theme')
+          var dark = saved
+            ? saved === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+          if (dark) document.documentElement.classList.add('dark')
+        } catch (e) {
+          /* localStorage no disponible */
+        }
+      })()
+    </script>
+    <style>
+      /* Fondo inicial hasta que cargue el CSS (evita flash blanco/oscuro) */
+      html { background: #f8fafc; }
+      html.dark { background: #0d1526; }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>
