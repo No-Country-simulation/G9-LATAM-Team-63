@@ -1,12 +1,16 @@
 package com.hackathon.energia_backend.controller;
 
+import com.hackathon.energia_backend.entity.Usuario;
 import com.hackathon.energia_backend.security.JwtUtil;
+import com.hackathon.energia_backend.service.AutenticacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -25,6 +29,9 @@ public class AuthController {
     // Utilidad para la generación y validación de tokens JWT
     // ============================================
     private final JwtUtil jwtUtil;
+
+    @Autowired
+    private AutenticacionService autenticacionService;
 
     // ============================================
     // Constantes de Configuración (Entorno Hackathon)
@@ -52,15 +59,16 @@ public class AuthController {
             description = "Envía el usuario y la contraseña para recibir un token de acceso válido."
     )
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody Usuario usuario) {
 
         // 1. Validación de credenciales contra las constantes configuradas
-        if (!USER.equals(request.getUsername()) || !PASS.equals(request.getPassword())) {
-            return ResponseEntity.status(401).body("Usuario o contraseña incorrectos");
-        }
+        var user = autenticacionService.loadUserByUsername(usuario.getUsername(), usuario.getPassword());
+//        if (!USER.equals(request.getUsername()) || !PASS.equals(request.getPassword())) {
+//            return ResponseEntity.status(401).body("Usuario o contraseña incorrectos");
+//        }
 
         // 2. Generación del token JWT para el usuario autenticado
-        String token = jwtUtil.generateToken(request.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername());
 
         // 3. Retorno de la respuesta exitosa envuelta en el DTO de respuesta
         return ResponseEntity.ok(new LoginResponse(token));
@@ -71,14 +79,14 @@ public class AuthController {
     // Modelos de datos específicos para este controlador
     // ============================================
 
-    /**
-     * DTO para la solicitud de inicio de sesión.
-     */
-    @Data
-    public static class LoginRequest {
-        private String username;
-        private String password;
-    }
+//    /**
+//     * DTO para la solicitud de inicio de sesión.
+//     */
+//    @Data
+//    public static class LoginRequest {
+//        private String username;
+//        private String password;
+//    }
 
     /**
      * DTO para la respuesta de inicio de sesión exitosa.
