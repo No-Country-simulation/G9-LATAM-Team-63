@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
  *   <li>{@code @NoArgsConstructor} y {@code @AllArgsConstructor}: Requeridos por JPA y el Builder.</li>
  * </ul>
  */
-@Entity
-@Table(name = "resultados_analisis")
+@Entity(name = "ResultadoAnalisis")
+@Table(name = "analisis_energetico")
 @Data
 @Builder
 @NoArgsConstructor
@@ -45,28 +45,51 @@ public class ResultadoAnalisis {
     // La restricción nullable = false garantiza la integridad referencial a nivel de BD.
     // ============================================
     @Column(nullable = false)
+    @JoinColumn(name = "consumo_kwh")
     private Double consumoKwh;
 
     @Column(nullable = false)
+    @JoinColumn(name = "uso_horario_pico")
     private Boolean usoHorarioPico;
 
     @Column(nullable = false)
+    @JoinColumn(name = "cantidad_equipos")
     private Integer cantidadEquipos;
 
     @Column(nullable = false)
+    @JoinColumn(name = "tipo_inmueble")
     private String tipoInmueble;
+
+    @Column(nullable = false)
+    @JoinColumn(name = "numero_habitantes")
+    private Integer numeroHabitantes;
+
+    @Column(nullable = false)
+    @JoinColumn(name = "antiguedad_inmueble")
+    private Integer antiguedadInmueble;
+
+    @Column(nullable = false)
+    @JoinColumn(name = "calefaccion")
+    private Boolean calefaccion;
+
+    @Column(nullable = false)
+    @JoinColumn(name = "aire_acondicionado")
+    private Boolean aireAcondicionado;
 
     // ============================================
     // Resultados del Análisis
     // Datos calculados por el motor de reglas o modelo de predicción.
     // ============================================
     @Column(nullable = false)
+    @JoinColumn(name = "categoria")
     private String categoria;
 
     @Column(nullable = false)
+    @JoinColumn(name = "probabilidad")
     private Double probabilidad;
 
     @Column(nullable = false)
+    @JoinColumn(name = "costo_estimado_mensual")
     private Double costoEstimadoMensual;
 
     // ============================================
@@ -75,6 +98,7 @@ public class ResultadoAnalisis {
     // updatable = false previene modificaciones accidentales en operaciones UPDATE.
     // ============================================
     @Column(nullable = false, updatable = false)
+    @JoinColumn(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
     // ============================================
