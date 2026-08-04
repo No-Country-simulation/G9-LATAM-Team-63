@@ -67,4 +67,36 @@ public class AnalisisRequest {
     @Min(value = 0, message = "Las horas no pueden ser negativas")
     @Max(value = 24, message = "Las horas no pueden exceder 24")
     private Integer horasAltoConsumo;
+
+    // ============================================
+    // Campo: Cantidad de habitantes en el inmueble
+    // Reglas: No nulo, rango válido entre 1 y 6 personas
+    // ============================================
+    @NotNull(message = "La cantidad de habitantes es obligatoria")
+    @Min(value = 1, message = "Debe haber al menos 1 habitante")
+    @Max(value = 6, message = "La cantidad máxima de habitantes es 6")
+    private Integer numeroHabitantes;
+
+    // ============================================
+    // Campo: Años de antigüedad de la construcción
+    // Reglas: No nulo, rango válido entre 0 y 50 años
+    // ============================================
+    @NotNull(message = "La cantidad de años es obligatoria")
+    @Min(value = 0, message = "No se puede ingresar un valor menor que 0")
+    @Max(value = 50, message = "La cantidad máxima de años es 50")
+    private Integer antiguedadInmueble;
+
+    // ============================================
+    // Campo: Indica si el inmueble cuenta con calefacción eléctrica
+    // Reglas: No nulo, debe de indicarse con true o false
+    // ============================================
+    @NotNull(message = "La especificación de la calefacción es obligatoria")
+    private Boolean calefaccion;
+
+    // ============================================
+    // Campo: Indica si el inmueble cuenta con aire acondicionado
+    // Reglas: No nulo, debe de indicarse con true o false
+    // ============================================
+    @NotNull(message = "La especificación del aire acondicionado es obligatoria")
+    private Boolean aireAcondicionado;
 }
