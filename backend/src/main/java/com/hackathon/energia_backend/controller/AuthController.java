@@ -1,14 +1,19 @@
 package com.hackathon.energia_backend.controller;
 
+import com.hackathon.energia_backend.dto.request.RegistroRequest;
+import com.hackathon.energia_backend.dto.response.RegistroResponse;
 import com.hackathon.energia_backend.entity.Usuario;
 import com.hackathon.energia_backend.security.JwtUtil;
 import com.hackathon.energia_backend.service.AutenticacionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
@@ -72,6 +77,28 @@ public class AuthController {
 
         // 3. Retorno de la respuesta exitosa envuelta en el DTO de respuesta
         return ResponseEntity.ok(new LoginResponse(token));
+    }
+
+    @Operation(
+            summary = "Registrar un nuevo usuario",
+            description = "Crea una cuenta encriptando la contraseña con BCrypt y devuelve los datos del usuario registrado."
+    )
+    @ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente")
+    @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o usuario ya registrado")
+    @PostMapping("/register")
+    public ResponseEntity<RegistroResponse> registrar(@Valid @RequestBody RegistroRequest request) {
+        Usuario usuario = autenticacionService.registrarUsuario(request);
+
+        String token = jwtUtil.generateToken(usuario.getUsername());
+
+        RegistroResponse response = RegistroResponse.builder()
+                .id(usuario.getId())
+                .username(usuario.getUsername())
+                .mensaje("Usuario registrado exitosamente")
+                .token(token)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // ============================================
