@@ -1,21 +1,30 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Logo from '../../../shared/components/Logo'
 import Button from '../../../shared/components/Button'
 import ThemeToggle from '../../../shared/components/ThemeToggle'
 import { useUiStore } from '../../../store/uiStore'
+import { useAuthStore } from '../../../store/authStore'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate()
   const isHome = location.pathname === '/'
   const closeMobileMenu = useUiStore((s) => s.closeMobileMenu)
+  const { isAuthenticated, username, logout } = useAuthStore()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+    closeMobileMenu()
+  }
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`} role="navigation" aria-label="Navegación principal">
@@ -46,9 +55,27 @@ export default function Navbar() {
 
           <div className="navbar__cta">
             <ThemeToggle />
-            <Button to="/analizar" variant="primary">
-              Analizar consumo
-            </Button>
+
+            {isAuthenticated ? (
+              /* Usuario con sesión */
+              <div className="navbar__user">
+                <span className="navbar__username" title={`Conectado como ${username}`}>
+                  {username}
+                </span>
+                <button
+                  type="button"
+                  className="navbar__logout"
+                  onClick={handleLogout}
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            ) : (
+              /* Sin sesión — un solo punto de entrada */
+              <Button to="/login" variant="secondary">
+                Iniciar sesión
+              </Button>
+            )}
           </div>
         </div>
       </div>

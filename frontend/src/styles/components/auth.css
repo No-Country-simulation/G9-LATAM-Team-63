@@ -1,0 +1,207 @@
+/* ─── Página de autenticación ─────────────────────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: var(--color-bg-primary);
+  /* Mismo fondo degradado suave del hero */
+  background-image: var(--gradient-hero);
+}
+
+/* ─── Tarjeta central ─────────────────────────────────────────────── */
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-xl);
+  animation: auth-slide-in 0.35s ease both;
+}
+
+@keyframes auth-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Encabezado ──────────────────────────────────────────────────── */
+.auth-card__header {
+  text-align: center;
+  margin-bottom: var(--space-md);
+}
+
+.auth-card__title {
+  font-family: var(--font-primary);
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  margin: var(--space-xs) 0 6px;
+}
+
+.auth-card__subtitle {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* ─── Bloque de error del backend ────────────────────────────────── */
+.auth-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(220, 38, 38, 0.07);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent-danger);
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: var(--space-md);
+  animation: auth-slide-in 0.2s ease both;
+}
+
+/* ─── Acciones ────────────────────────────────────────────────────── */
+.auth-card__actions {
+  margin-top: var(--space-md);
+}
+
+.auth-card__actions .btn-primary {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ─── Footer / enlace de cambio de modo ──────────────────────────── */
+.auth-card__footer {
+  text-align: center;
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+}
+
+.auth-card__link {
+  color: var(--color-accent-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.auth-card__link:hover {
+  color: var(--color-accent-secondary);
+  text-decoration: underline;
+}
+
+/* ─── Navbar: usuario autenticado ─────────────────────────────────── */
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.navbar__username {
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  padding: 6px 12px;
+  background: rgba(30, 64, 175, 0.06);
+  border: 1px solid rgba(30, 64, 175, 0.15);
+  border-radius: var(--radius-full);
+}
+
+.navbar__logout {
+  font-family: var(--font-primary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  text-decoration: none;
+}
+
+.navbar__logout:hover {
+  color: var(--color-accent-danger);
+  background: rgba(220, 38, 38, 0.05);
+}
+
+/* ─── Formulario: layout de filas ────────────────────────────────── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+@media (max-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Formulario: sección de checkboxes ──────────────────────────── */
+.form-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--space-sm);
+  background: var(--color-bg-section-alt);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  margin-bottom: var(--space-md);
+}
+
+.form-field__checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--color-accent-primary);
+  cursor: pointer;
+}
+
+.form-field__label--inline {
+  margin-bottom: 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ─── Formulario: error general (no-campo) ───────────────────────── */
+.form-error-general {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(220, 38, 38, 0.07);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent-danger);
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: var(--space-md);
+}
+
+/* ─── Dark mode overrides ─────────────────────────────────────────── */
+.dark .auth-page {
+  background-image: none;
+}
+
+.dark .auth-card {
+  background: var(--color-bg-secondary);
+}
+
+.dark .form-checkboxes {
+  background: var(--color-bg-primary);
+}

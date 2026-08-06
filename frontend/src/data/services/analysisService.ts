@@ -24,7 +24,7 @@ export function classifyProfile(input: AnalysisInput): AnalysisResult {
   const recomendaciones = generateRecommendations(input, categoria)
   const costo_estimado_mensual = estimateCost(input.consumoKwh)
 
-  return { categoria, probabilidad, recomendaciones, costo_estimado_mensual }
+  return { categoria, probabilidad, recomendaciones, costo_estimado_mensual, idAnalisis: 0 }
 }
 
 function calculateScore(input: AnalysisInput): number {

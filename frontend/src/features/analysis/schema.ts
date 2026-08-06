@@ -20,8 +20,22 @@ export const analysisSchema = z.object({
   ),
   horasAltoConsumo: z
     .number({ message: 'Debe ser un número' })
+    .int('Debe ser un número entero')
     .min(0, 'Las horas no pueden ser negativas')
     .max(24, 'Las horas no pueden exceder 24'),
+  // Campos nuevos — igual que el backend
+  numeroHabitantes: z
+    .number({ message: 'Debe ser un número' })
+    .int('Debe ser un número entero')
+    .min(1, 'Debe haber al menos 1 habitante')
+    .max(6, 'El máximo permitido es 6 habitantes'),
+  antiguedadInmueble: z
+    .number({ message: 'Debe ser un número' })
+    .int('Debe ser un número entero')
+    .min(0, 'La antigüedad no puede ser negativa')
+    .max(50, 'El máximo permitido es 50 años'),
+  calefaccion: z.boolean(),
+  aireAcondicionado: z.boolean(),
 })
 
 export type AnalysisFormData = z.infer<typeof analysisSchema>

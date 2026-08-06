@@ -6,6 +6,11 @@ export interface AnalysisInput {
   cantidadEquipos: number
   tipoInmueble: 'Casa' | 'Apartamento' | 'Local' | 'Oficina'
   horasAltoConsumo: number
+  // Campos nuevos — requeridos por el backend
+  numeroHabitantes: number
+  antiguedadInmueble: number
+  calefaccion: boolean
+  aireAcondicionado: boolean
 }
 
 export interface AnalysisResult {
@@ -14,8 +19,8 @@ export interface AnalysisResult {
   recomendaciones: string[]
   // El backend serializa este campo con guion bajo (@JsonProperty)
   costo_estimado_mensual: number
-  // Solo lo devuelve el backend; el fallback local no lo genera
-  idAnalisis?: number
+  // Siempre presente en respuesta real del backend
+  idAnalisis: number
 }
 
 export interface HistoryEntry {
