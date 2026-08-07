@@ -25,9 +25,8 @@ export default function CTA() {
           </h2>
 
           <p className="cta-section__subtitle">
-            Miles de usuarios ya transformaron sus hábitos energéticos con la
-            inteligencia de EnergiAI. Es gratis, es rápido y los resultados
-            son inmediatos.
+            Descubre tu perfil energético y recibe acciones concretas para
+            reducir tu factura. Es gratis, es rápido y los resultados son inmediatos.
           </p>
 
           <div className="cta-section__actions">

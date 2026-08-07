@@ -2,46 +2,36 @@ import type { IconName } from '../../../shared/components/Icons'
 
 interface UseCase {
   avatar: IconName
-  savings: string
-  savingsLabel: string
-  quote: string
-  author: string
-  role: string
+  title: string
+  description: string
   profile: 'Eficiente' | 'Moderado' | 'Ineficiente'
   profileClass: string
 }
 
+// Escenarios ilustrativos de clasificación, coherentes con las reglas del
+// análisis energético. No son testimonios ni datos de usuarios reales.
 export const cases: UseCase[] = [
   {
     avatar: 'house',
-    savings: '$73',
-    savingsLabel: 'ahorro mensual',
-    quote:
-      '"Descubrí que mi aire acondicionado representaba el 62% de mi consumo en horas pico. Con los cambios sugeridos por EnergiAI reduje mi factura un 35% en el primer mes."',
-    author: 'María Rodríguez',
-    role: 'Residencial · Casa familiar, Buenos Aires',
+    title: 'Casa familiar',
+    description:
+      'Consumo de 420 kWh con 10 equipos y aire acondicionado, concentrado en horario pico (18–22 h). Se recomienda desplazar el consumo y revisar los equipos de mayor gasto.',
     profile: 'Moderado',
     profileClass: 'profile-badge--moderado',
   },
   {
     avatar: 'store',
-    savings: '$214',
-    savingsLabel: 'ahorro mensual',
-    quote:
-      '"Nuestro restaurante pasó de perfil Ineficiente a Eficiente en 3 meses. La IA detectó que dejábamos equipos encendidos fuera de horario. Ahora ahorramos $214 al mes."',
-    author: 'Carlos Méndez',
-    role: 'Comercio · Restaurante, Ciudad de México',
-    profile: 'Eficiente',
-    profileClass: 'profile-badge--eficiente',
+    title: 'Local comercial',
+    description:
+      'Más de 7 horas diarias de alto consumo y un ratio de kWh por equipo elevado. Se sugiere reducir las horas pico y evaluar el reemplazo de equipos antiguos.',
+    profile: 'Ineficiente',
+    profileClass: 'profile-badge--ineficiente',
   },
   {
     avatar: 'building',
-    savings: '$89',
-    savingsLabel: 'ahorro mensual',
-    quote:
-      '"Integramos la API en menos de una hora. Ahora tenemos análisis automáticos en nuestro dashboard interno. Las recomendaciones son claras, prácticas y fáciles de implementar."',
-    author: 'Ana Torres',
-    role: 'Tecnología · Startup, Lima',
+    title: 'Oficina',
+    description:
+      'Consumo contenido por equipo y pocas horas de alta demanda. El perfil se mantiene con buenas prácticas: solo requiere monitoreo periódico del consumo.',
     profile: 'Eficiente',
     profileClass: 'profile-badge--eficiente',
   },

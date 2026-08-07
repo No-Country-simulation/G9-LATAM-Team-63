@@ -7,6 +7,8 @@ type IconName =
   | 'snake' | 'coffee' | 'atom'
   | 'alert' | 'check' | 'star'
   | 'lock' | 'leaf' | 'python'
+  | 'users' | 'clock' | 'flame' | 'snowflake'
+  | 'tv' | 'car' | 'download' | 'copy'
 
 interface IconProps {
   name: IconName
@@ -37,6 +39,14 @@ const paths: Record<IconName, string> = {
   lock: `<rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 11V7a4 4 0 118 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>`,
   leaf: `<path d="M11 20A7 7 0 019.5 6.5C11 5 13 5 14 6c1 1 1.5 1.5 2 3 .5 1.5.5 3 0 4-1 2-3 3.5-5 4 0 0-2 1.5-2 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M9.5 11.5L19 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>`,
   python: `<rect x="6" y="3" width="12" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M9 8h6M9 16h6M9 12h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>`,
+  users: `<path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="10" cy="7" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>`,
+  clock: `<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  flame: `<path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  snowflake: `<path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>`,
+  tv: `<rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 2.5l4 5 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  car: `<path d="M4 11l2-5a1 1 0 011-1h10a1 1 0 011 1l2 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M3 11h18v5a1 1 0 01-1 1h-1v2h-3v-2H8v2H5v-2H4a1 1 0 01-1-1v-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="7.5" cy="15.5" r="1" fill="currentColor"/><circle cx="16.5" cy="15.5" r="1" fill="currentColor"/>`,
+  download: `<path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  copy: `<rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
 }
 
 export function Icon({ name, size = 24, className = '', style }: IconProps) {

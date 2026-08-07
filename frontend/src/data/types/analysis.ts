@@ -21,6 +21,10 @@ export interface AnalysisResult {
   costo_estimado_mensual: number
   // Siempre presente en respuesta real del backend
   idAnalisis: number
+  // Contrato del modelo de ciencia de datos (API Python):
+  // probabilidad asignada a CADA clase. Permite mostrar la distribución
+  // completa del modelo. Ausente en respuestas de Spring Boot.
+  distancias?: Record<'Eficiente' | 'Moderado' | 'Ineficiente', number>
 }
 
 export interface HistoryEntry {

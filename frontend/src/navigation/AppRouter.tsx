@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import {
   createBrowserRouter,
   RouterProvider,
@@ -8,13 +8,23 @@ import {
 } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import Layout from '../shared/components/Layout'
+import Loader from '../shared/components/Loader'
 import LandingPage from '../features/landing/pages/LandingPage'
 import AnalysisPage from '../features/analysis/pages/AnalysisPage'
-import ResultsPage from '../features/results/pages/ResultsPage'
 import HistoryPage from '../features/history/pages/HistoryPage'
 import HelpPage from '../features/help/pages/HelpPage'
 import LoginPage from '../features/auth/pages/LoginPage'
 import RegisterPage from '../features/auth/pages/RegisterPage'
+
+// ResultsPage se carga bajo demanda: incluye los gráficos de Recharts
+// y no debe penalizar la carga inicial del sitio.
+const ResultsPage = lazy(() => import('../features/results/pages/ResultsPage'))
+
+const resultsElement = (
+  <Suspense fallback={<Loader text="Cargando resultados..." />}>
+    <ResultsPage />
+  </Suspense>
+)
 
 // ─── ProtectedRoute ──────────────────────────────────────────────────────────
 // Redirige a /login con { from: location.pathname } si no hay sesión activa.
@@ -77,8 +87,8 @@ const router = createBrowserRouter([
         ],
       },
       // /resultados no requiere auth (redirige solo si no hay result en store)
-      { path: 'resultados', element: <ResultsPage /> },
-      { path: 'resultados/:id', element: <ResultsPage /> },
+      { path: 'resultados', element: resultsElement },
+      { path: 'resultados/:id', element: resultsElement },
     ],
   },
   // Auth — sin Layout (sin Navbar/Footer)

@@ -21,7 +21,7 @@
 
 .usecase-card__top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-md);
 }
@@ -39,38 +39,18 @@
   color: #ffffff;
 }
 
-.usecase-card__savings {
+.usecase-card__title {
   font-family: var(--font-primary);
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--color-accent-success);
+  color: var(--color-text-primary);
+  margin-bottom: 10px;
 }
 
-.usecase-card__savings-label {
-  font-size: 0.68rem;
-  color: var(--color-text-secondary);
-  display: block;
-  text-align: right;
-}
-
-.usecase-card__quote {
+.usecase-card__description {
   font-size: 0.88rem;
   color: var(--color-text-secondary);
   line-height: 1.7;
-  margin-bottom: var(--space-md);
-  font-style: italic;
-}
-
-.usecase-card__author {
-  font-family: var(--font-primary);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.usecase-card__role {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
 }
 
 .usecase-card__footer {
