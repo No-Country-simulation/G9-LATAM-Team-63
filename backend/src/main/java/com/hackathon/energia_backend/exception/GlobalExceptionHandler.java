@@ -56,6 +56,27 @@ public class GlobalExceptionHandler {
     }
 
     // ============================================
+    // Manejador: Acceso Denegado (Recurso de Otro Usuario)
+    // Intercepta intentos de acceder a un análisis que no pertenece
+    // al usuario autenticado.
+    // Respuesta HTTP: 403 Forbidden
+    // ============================================
+
+    /**
+     * Procesa la excepción {@link AccesoDenegadoException} lanzada cuando
+     * un usuario intenta consultar un recurso que no le pertenece.
+     *
+     * @param ex La excepción {@link AccesoDenegadoException} lanzada por la aplicación.
+     * @return {@link ResponseEntity} con el mensaje de error y estado HTTP 403.
+     */
+    @ExceptionHandler(AccesoDenegadoException.class)
+    public ResponseEntity<Map<String, String>> handleAccesoDenegado(AccesoDenegadoException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    // ============================================
     // Manejador: Excepciones de Tiempo de Ejecución (Genéricas)
     // Captura RuntimeExceptions no manejadas por otros handlers específicos
     // Respuesta HTTP: 404 Not Found o 500 Internal Server Error

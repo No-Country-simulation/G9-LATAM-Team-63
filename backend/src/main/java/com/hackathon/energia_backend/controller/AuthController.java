@@ -73,7 +73,7 @@ public class AuthController {
 //        }
 
         // 2. Generación del token JWT para el usuario autenticado
-        String token = jwtUtil.generateToken(user.getUsername());
+        String token = jwtUtil.generateToken(user.getUsername(), user.getId());
 
         // 3. Retorno de la respuesta exitosa envuelta en el DTO de respuesta
         return ResponseEntity.ok(new LoginResponse(token));
@@ -89,7 +89,7 @@ public class AuthController {
     public ResponseEntity<RegistroResponse> registrar(@Valid @RequestBody RegistroRequest request) {
         Usuario usuario = autenticacionService.registrarUsuario(request);
 
-        String token = jwtUtil.generateToken(usuario.getUsername());
+        String token = jwtUtil.generateToken(usuario.getUsername(), usuario.getId());
 
         RegistroResponse response = RegistroResponse.builder()
                 .id(usuario.getId())

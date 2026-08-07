@@ -83,13 +83,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // ============================================
             // Paso 6: Establecer Contexto de Autenticación
-            // Crea el token de autenticación con username y autoridades
+            // Crea el token de autenticación usando la ENTIDAD Usuario como
+            // principal (no solo el username), para que los controladores
+            // puedan inyectarla con @AuthenticationPrincipal y acceder
+            // directamente al id del usuario sin consultas adicionales.
             // Lo registra en SecurityContextHolder para que esté disponible
             // en toda la ejecución del request
             // ============================================
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            username,
+                            usuario,
                             null,
                             Collections.singletonList(authority)
                     );

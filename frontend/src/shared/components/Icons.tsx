@@ -9,6 +9,7 @@ type IconName =
   | 'lock' | 'leaf' | 'python'
   | 'users' | 'clock' | 'flame' | 'snowflake'
   | 'tv' | 'car' | 'download' | 'copy'
+  | 'chevron-down' | 'logout'
 
 interface IconProps {
   name: IconName
@@ -47,6 +48,8 @@ const paths: Record<IconName, string> = {
   car: `<path d="M4 11l2-5a1 1 0 011-1h10a1 1 0 011 1l2 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M3 11h18v5a1 1 0 01-1 1h-1v2h-3v-2H8v2H5v-2H4a1 1 0 01-1-1v-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="7.5" cy="15.5" r="1" fill="currentColor"/><circle cx="16.5" cy="15.5" r="1" fill="currentColor"/>`,
   download: `<path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
   copy: `<rect x="9" y="9" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  'chevron-down': `<path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+  logout: `<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M16 17l5-5-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
 }
 
 export function Icon({ name, size = 24, className = '', style }: IconProps) {

@@ -48,6 +48,16 @@ public class ResultadoAnalisis {
     @JoinColumn(name = "consumo_kwh")
     private Double consumoKwh;
 
+    // ============================================
+    // Horas de Alto Consumo
+    // Dato de entrada utilizado por el motor de reglas para
+    // clasificar la categoría. nullable = true para no romper
+    // los registros previos a la existencia de esta columna.
+    // ============================================
+    @Column(nullable = true)
+    @JoinColumn(name = "horas_alto_consumo")
+    private Integer horasAltoConsumo;
+
     @Column(nullable = false)
     @JoinColumn(name = "uso_horario_pico")
     private Boolean usoHorarioPico;
@@ -100,6 +110,17 @@ public class ResultadoAnalisis {
     @Column(nullable = false, updatable = false)
     @JoinColumn(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
+
+    // ============================================
+    // Relación con el Usuario Propietario
+    // Asocia cada análisis al usuario autenticado que lo generó,
+    // permitiendo consultar el historial por usuario.
+    // nullable (por defecto en @JoinColumn) para no romper
+    // los registros creados antes de existir la relación.
+    // ============================================
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
     // ============================================
     // Callback del Ciclo de Vida de JPA

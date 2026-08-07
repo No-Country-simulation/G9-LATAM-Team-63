@@ -33,3 +33,23 @@ export interface HistoryEntry {
   result: AnalysisResult
   created_at: string
 }
+
+// Contrato exacto con AnalisisHistorialResponse del backend:
+// usado por GET /api/analisis/historial y GET /api/analisis/{id}
+export interface HistorialEntryDto {
+  idAnalisis: number
+  consumoKwh: number
+  usoHorarioPico: boolean
+  cantidadEquipos: number
+  tipoInmueble: 'Casa' | 'Apartamento' | 'Local' | 'Oficina'
+  numeroHabitantes: number
+  antiguedadInmueble: number
+  calefaccion: boolean
+  aireAcondicionado: boolean
+  horasAltoConsumo: number
+  categoria: 'Eficiente' | 'Moderado' | 'Ineficiente'
+  probabilidad: number
+  recomendaciones: string[]
+  costo_estimado_mensual: number
+  fecha_creacion: string
+}

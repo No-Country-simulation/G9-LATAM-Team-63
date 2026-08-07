@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import Logo from '../../../shared/components/Logo'
 import Button from '../../../shared/components/Button'
 import ThemeToggle from '../../../shared/components/ThemeToggle'
+import { Icon } from '../../../shared/components/Icons'
 import { useUiStore } from '../../../store/uiStore'
 import { useAuthStore } from '../../../store/authStore'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
-  const navigate = useNavigate()
   const isHome = location.pathname === '/'
   const closeMobileMenu = useUiStore((s) => s.closeMobileMenu)
   const { isAuthenticated, username, logout } = useAuthStore()
@@ -20,10 +22,26 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Cerrar el submenú de usuario al hacer clic fuera de él
+  useEffect(() => {
+    if (!userMenuOpen) return
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [userMenuOpen])
+
   const handleLogout = () => {
-    logout()
-    navigate('/')
+    setUserMenuOpen(false)
     closeMobileMenu()
+    logout()
+    // Redirección dura a la portada: garantiza salir de rutas protegidas
+    // sin que ProtectedRoute redirija a /login por la carrera de estados
+    // entre el cierre de sesión y la navegación del router.
+    window.location.href = '/'
   }
 
   return (
@@ -57,18 +75,47 @@ export default function Navbar() {
             <ThemeToggle />
 
             {isAuthenticated ? (
-              /* Usuario con sesión */
-              <div className="navbar__user">
-                <span className="navbar__username" title={`Conectado como ${username}`}>
-                  {username}
-                </span>
+              /* Usuario con sesión — submenú al presionar el usuario */
+              <div className="navbar__user" ref={userMenuRef}>
                 <button
                   type="button"
-                  className="navbar__logout"
-                  onClick={handleLogout}
+                  className={`navbar__user-btn${userMenuOpen ? ' is-open' : ''}`}
+                  onClick={() => setUserMenuOpen((open) => !open)}
+                  aria-haspopup="menu"
+                  aria-expanded={userMenuOpen}
+                  aria-label={`Menú de usuario: ${username}`}
                 >
-                  Cerrar sesión
+                  <span className="navbar__username" title={`Conectado como ${username}`}>
+                    {username}
+                  </span>
+                  <Icon name="chevron-down" size={14} className="navbar__caret" />
                 </button>
+
+                {userMenuOpen && (
+                  <div className="navbar__user-menu" role="menu">
+                    <Link
+                      to="/historial"
+                      className="navbar__user-item"
+                      role="menuitem"
+                      onClick={() => {
+                        setUserMenuOpen(false)
+                        closeMobileMenu()
+                      }}
+                    >
+                      <Icon name="clipboard" size={16} />
+                      Mi historial
+                    </Link>
+                    <button
+                      type="button"
+                      className="navbar__user-item navbar__user-item--danger"
+                      role="menuitem"
+                      onClick={handleLogout}
+                    >
+                      <Icon name="logout" size={16} />
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               /* Sin sesión — un solo punto de entrada */

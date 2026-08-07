@@ -72,17 +72,20 @@ public class JwtUtil {
      * Construye el token estableciendo los claims registrados (Registered Claims) esenciales:
      * <ul>
      *   <li><strong>sub (Subject):</strong> Identificador único del usuario (username).</li>
+     *   <li><strong>id:</strong> Identificador numérico del usuario en la base de datos.</li>
      *   <li><strong>iat (Issued At):</strong> Marca de tiempo de emisión del token.</li>
      *   <li><strong>exp (Expiration):</strong> Marca de tiempo absoluta de expiración.</li>
      * </ul>
      * </p>
      *
      * @param username Identificador del sujeto para el cual se emite el token.
+     * @param userId   Identificador numérico del usuario en la base de datos.
      * @return Cadena de texto compacta, codificada en Base64URL, que representa el JWT firmado.
      */
-    public String generateToken(String username) {
+    public String generateToken(String username, Long userId) {
         return Jwts.builder()
                 .subject(username)
+                .claim("id", userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSigningKey())

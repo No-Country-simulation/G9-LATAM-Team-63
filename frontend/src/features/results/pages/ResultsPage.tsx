@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAnalysisStore } from '../../../store/analysisStore'
-import { findHistoryEntry } from '../../../data/services/historyService'
+import { getResult } from '../../../data/api/analysis'
+import { mapHistorialEntry } from '../../../data/services/historyService'
 import type { AnalysisInput, AnalysisResult } from '../../../data/types/analysis'
 import ClassificationCard from '../components/ClassificationCard'
 import CostEstimate from '../components/CostEstimate'
@@ -22,8 +24,19 @@ export default function ResultsPage() {
   const storeInput = useAnalysisStore((s) => s.lastInput)
 
   const isDetail = Boolean(id)
-  // localStorage es síncrono: la búsqueda se resuelve en el propio render
-  const historyEntry = id ? findHistoryEntry(id) : undefined
+
+  // Detalle: se consulta al backend (GET /api/analisis/{id}) con el token del usuario.
+  // Un 403 (análisis de otro usuario) o 404 se traducen en la pantalla "no encontrado".
+  const {
+    data: historyEntry,
+    isLoading: isLoadingDetail,
+    isError: isDetailError,
+  } = useQuery({
+    queryKey: ['history-entry', id],
+    queryFn: async () => (id ? mapHistorialEntry(await getResult(id)) : undefined),
+    enabled: isDetail,
+    staleTime: 60_000,
+  })
 
   const result: AnalysisResult | null = isDetail ? historyEntry?.result ?? null : storeResult
   const input: AnalysisInput | null = isDetail ? historyEntry?.input ?? null : storeInput
@@ -35,7 +48,11 @@ export default function ResultsPage() {
     }
   }, [isDetail, storeResult, navigate])
 
-  if (isDetail && !historyEntry) {
+  if (isDetail && isLoadingDetail) {
+    return <Loader text="Cargando resultados..." />
+  }
+
+  if (isDetail && (isDetailError || !historyEntry)) {
     return (
       <section className="results-page">
         <div className="container">

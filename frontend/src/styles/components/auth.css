@@ -104,9 +104,75 @@
 
 /* ─── Navbar: usuario autenticado ─────────────────────────────────── */
 .navbar__user {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+}
+
+.navbar__user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.navbar__caret {
+  color: var(--color-text-secondary);
+  transition: transform var(--transition-fast);
+}
+
+.navbar__user-btn.is-open .navbar__caret {
+  transform: rotate(180deg);
+}
+
+.navbar__user-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl);
+  z-index: 120;
+}
+
+.navbar__user-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  font-family: var(--font-primary);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.navbar__user-item:hover {
+  background: rgba(30, 64, 175, 0.08);
+}
+
+.navbar__user-item--danger {
+  color: var(--color-accent-danger);
+}
+
+.navbar__user-item--danger:hover {
+  background: rgba(220, 38, 38, 0.08);
 }
 
 .navbar__username {
