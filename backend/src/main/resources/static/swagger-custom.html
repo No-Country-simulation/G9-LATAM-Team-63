@@ -45,27 +45,93 @@
         .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4); }
         #swagger-ui { background: white; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); overflow: hidden; min-height: 500px; }
-        .swagger-ui .topbar, .swagger-ui .info, .swagger-ui .scheme-container { display: none !important; }
+
+        /* =========================================================================
+           FIX 1: Ocultar topbar de Swagger
+           ========================================================================= */
+        .swagger-ui .topbar { display: none !important; }
+
+        /* =========================================================================
+           FIX 2: Ocultar botón Authorize nativo (usamos input custom de arriba)
+           ========================================================================= */
+        .swagger-ui .auth-wrapper,
+        .swagger-ui .btn.authorize,
+        .swagger-ui .auth-container {
+            display: none !important;
+        }
+
+        /* Badges de método HTTP (GET, POST, etc.) */
+        .swagger-ui .opblock-summary-method {
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem !important;
+            min-width: 80px !important;
+            text-align: center !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+        }
+        .swagger-ui .opblock.opblock-get .opblock-summary-method { background: #3182ce !important; color: white !important; }
+        .swagger-ui .opblock.opblock-post .opblock-summary-method { background: #38a169 !important; color: white !important; }
+        .swagger-ui .opblock.opblock-put .opblock-summary-method { background: #d69e2e !important; color: white !important; }
+        .swagger-ui .opblock.opblock-delete .opblock-summary-method { background: #e53e3e !important; color: white !important; }
+
+        /* Ruta del endpoint más grande y legible */
+        .swagger-ui .opblock-summary-path {
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            color: #1a202c !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* Descripción / Summary más visible */
+        .swagger-ui .opblock-summary-description {
+            font-size: 1rem !important;
+            font-weight: 500 !important;
+            color: #4a5568 !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* Fondo de cada bloque de operación con más contraste */
+        .swagger-ui .opblock {
+            border-radius: 0.75rem !important;
+            margin-bottom: 0.75rem !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+        }
+
+        /* Títulos de sección más grandes */
+        .swagger-ui .opblock-tag {
+            font-size: 1.25rem !important;
+            font-weight: 700 !important;
+            color: #2d3748 !important;
+            padding: 1rem 0 !important;
+        }
+
+        /* =========================================================================
+           FIX 3: Inputs de Swagger UI con texto visible y sin ghosting
+           ========================================================================= */
+        .swagger-ui input[type="text"],
+        .swagger-ui input[type="number"],
+        .swagger-ui textarea,
+        .swagger-ui select,
+        .swagger-ui .parameters-col_description input,
+        .swagger-ui .parameters-col_name input,
+        .swagger-ui table.parameters input {
+            background-color: #ffffff !important;
+            color: #1a202c !important;
+            -webkit-text-fill-color: #1a202c !important;
+            text-shadow: none !important;
+            caret-color: #1a202c !important;
+            border: 1px solid #d9d9d9 !important;
+        }
+        .swagger-ui input::placeholder,
+        .swagger-ui textarea::placeholder {
+            color: #718096 !important;
+            -webkit-text-fill-color: #718096 !important;
+            text-shadow: none !important;
+        }
+
+        /* Clase para ocultar secciones protegidas */
         .hidden-section { display: none !important; }
-        .alert { padding: 1rem 1.5rem; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: 500; }
-        .alert-danger { background: #fed7d7; border-left: 4px solid #e53e3e; color: #c53030; }
-        .alert-success { background: #c6f6d5; border-left: 4px solid #48bb78; color: #22543d; }
-        .alert-warning { background: #fffaf0; border-left: 4px solid #ed8936; color: #c05621; }
-        .auth-input-section { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem; margin: 1.5rem 0; }
-        .auth-input-section h3 { font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: 1rem; }
-        .token-input-wrapper { display: flex; align-items: center; background: white; border: 2px solid #cbd5e0; border-radius: 0.5rem; overflow: hidden; margin-bottom: 1rem; }
-        .token-input-wrapper:focus-within { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .token-prefix { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.75rem 1rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.875rem; font-weight: 600; white-space: nowrap; user-select: none; }
-        .token-input { flex: 1; border: none; padding: 0.75rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.875rem; outline: none; }
-        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .btn-secondary { background: #4a5568; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; }
-        .btn-secondary:hover { background: #2d3748; }
-        .loading-container { text-align: center; padding: 3rem; background: white; border-radius: 1rem; margin: 2rem 0; }
-        .loading-container .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .error-container { background: #fed7d7; border: 2px solid #fc8181; border-radius: 0.75rem; padding: 1.5rem; margin: 1.5rem 0; }
-        .error-container h3 { color: #c53030; margin-bottom: 1rem; }
-        .error-container code { background: white; padding: 0.5rem; border-radius: 0.25rem; display: block; margin: 0.5rem 0; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -77,72 +143,72 @@
         </div>
         <div class="auth-section">
             <div id="status-badge" class="status-badge not-authenticated">🔒 No Autenticado</div>
-            <button id="btn-logout" class="btn-logout" onclick="forceLogout()" style="display: none;"> Cerrar Sesión</button>
+            <button id="btn-logout" class="btn-logout" onclick="forceLogout()" style="display: none;">Cerrar Sesión</button>
         </div>
     </div>
 </header>
 
 <div class="main-container">
-    <div class="alert alert-danger" id="auth-required-banner">
+    <div class="alert alert-danger" id="auth-required-banner" style="background: #fed7d7; border-left: 4px solid #e53e3e; color: #c53030; padding: 1rem 1.5rem; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: 500;">
         <strong>🔐 Autenticación Requerida:</strong> Debes iniciar sesión para acceder a los endpoints protegidos.
     </div>
-    <div class="alert alert-success" id="auth-success-banner" style="display: none;">
+    <div class="alert alert-success" id="auth-success-banner" style="display: none; background: #c6f6d5; border-left: 4px solid #48bb78; color: #22543d; padding: 1rem 1.5rem; border-radius: 0.5rem; margin-bottom: 1rem; font-weight: 500;">
         <strong>✅ Autenticación Exitosa:</strong> Tienes acceso a todos los endpoints protegidos.
     </div>
 
     <div class="info-card">
-        <h2> Instrucciones de Uso</h2>
+        <h2>📋 Instrucciones de Uso</h2>
         <ol>
             <li>Haz login en el endpoint <code>POST /api/auth/login</code> (más abajo)</li>
             <li>Copia el <strong>token JWT</strong> de la respuesta (solo el token, sin "Bearer")</li>
             <li>Pega el token en el campo de abajo (el prefijo "Bearer" ya está incluido)</li>
             <li>Haz clic en <strong>"Aplicar Token"</strong></li>
-            <li>La sección <strong>"2. Análisis Energético"</strong> aparecerá automáticamente</li>
+            <li>Las secciones <strong>"2. Análisis Energético"</strong> y <strong>"3. Gestión de Usuarios"</strong> aparecerán automáticamente</li>
         </ol>
 
-        <div class="auth-input-section">
-            <h3> Ingresar Token de Autenticación</h3>
-            <div class="token-input-wrapper">
-                <div class="token-prefix">Bearer</div>
-                <input type="text" id="token-input" class="token-input" placeholder="eyJhbGciOiJIUzI1NiJ9...">
+        <div class="auth-input-section" style="background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem; margin: 1.5rem 0;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #2d3748; margin-bottom: 1rem;">🔑 Ingresar Token de Autenticación</h3>
+            <div style="display: flex; align-items: center; background: white; border: 2px solid #cbd5e0; border-radius: 0.5rem; overflow: hidden; margin-bottom: 1rem;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.75rem 1rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.875rem; font-weight: 600; white-space: nowrap; user-select: none;">Bearer</div>
+                <input type="text" id="token-input" style="flex: 1; border: none; padding: 0.75rem; font-family: 'Monaco', 'Menlo', monospace; font-size: 0.875rem; outline: none;" placeholder="eyJhbGciOiJIUzI1NiJ9...">
             </div>
-            <div class="btn-group">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 <button class="btn-primary" onclick="applyToken()">✅ Aplicar Token</button>
-                <button class="btn-secondary" onclick="clearToken()">🗑️ Limpiar Token</button>
-                <button class="btn-secondary" onclick="checkAndToggle()">🔄 Verificar Estado</button>
+                <button class="btn-primary" onclick="clearToken()" style="background: #4a5568;">🗑️ Limpiar Token</button>
+                <button class="btn-primary" onclick="checkAndToggle()" style="background: #4a5568;">🔄 Verificar Estado</button>
             </div>
         </div>
     </div>
 
-    <!-- Loading indicator -->
-    <div id="loading-msg" class="loading-container">
-        <div class="spinner"></div>
+    <div id="loading-msg" style="text-align: center; padding: 3rem; background: white; border-radius: 1rem; margin: 2rem 0;">
+        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
         <p>Cargando documentación de la API...</p>
-        <p style="font-size: 0.875rem; color: #718096; margin-top: 0.5rem;">Si no carga en 5 segundos, presiona F12 y revisa la consola</p>
     </div>
 
-    <!-- Error container (hidden by default) -->
-    <div id="error-container" class="error-container" style="display: none;">
-        <h3>❌ Error al cargar Swagger UI</h3>
+    <div id="error-container" style="display: none; background: #fed7d7; border: 2px solid #fc8181; border-radius: 0.75rem; padding: 1.5rem; margin: 1.5rem 0;">
+        <h3 style="color: #c53030; margin-bottom: 1rem;">❌ Error al cargar Swagger UI</h3>
         <p id="error-message"></p>
-        <code id="error-details"></code>
-        <button class="btn-primary" onclick="window.location.reload()" style="margin-top: 1rem;"> Recargar Página</button>
+        <code id="error-details" style="background: white; padding: 0.5rem; border-radius: 0.25rem; display: block; margin: 0.5rem 0; font-family: monospace;"></code>
+        <button class="btn-primary" onclick="window.location.reload()" style="margin-top: 1rem;">🔄 Recargar Página</button>
     </div>
 
-    <!-- Swagger UI container -->
     <div id="swagger-ui" style="display: none;"></div>
 </div>
 
 <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-<script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
 <script>
     let uiInstance = null;
     let currentToken = null;
 
-    // INTERCEPTOR: Agrega el token a las peticiones de la API protegida
+    // =========================================================================
+    // Interceptores de red: inyectan Authorization en Fetch y XHR
+    // =========================================================================
     const originalFetch = window.fetch;
     window.fetch = function(url, options = {}) {
-        if (currentToken && typeof url === 'string' && (url.includes('/api/analisis') || url.includes('/api/usuarios'))) {
+        if (currentToken && typeof url === 'string' && (
+            url.includes('/api/analisis') ||
+            url.includes('/api/usuarios')
+        )) {
             if (!options.headers) options.headers = {};
             if (options.headers instanceof Headers) {
                 options.headers.set('Authorization', currentToken);
@@ -154,7 +220,6 @@
         return originalFetch.call(this, url, options);
     };
 
-    // INTERCEPTOR: XMLHttpRequest
     const originalXHROpen = XMLHttpRequest.prototype.open;
     const originalXHRSend = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.open = function(method, url, ...args) {
@@ -162,13 +227,71 @@
         return originalXHROpen.apply(this, [method, url, ...args]);
     };
     XMLHttpRequest.prototype.send = function(body) {
-        if (currentToken && this._url && (this._url.includes('/api/analisis') || this._url.includes('/api/usuarios'))) {
+        if (currentToken && this._url && (
+            this._url.includes('/api/analisis') ||
+            this._url.includes('/api/usuarios')
+        )) {
             this.setRequestHeader('Authorization', currentToken);
             console.log('🔐 Header Authorization agregado (XHR) a:', this._url);
         }
         return originalXHRSend.apply(this, [body]);
     };
 
+    // =========================================================================
+    // Utilidad: Decodificar JWT (Base64Url → JSON) sin verificar firma
+    // =========================================================================
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) {
+            console.error('Error decodificando JWT:', e);
+            return null;
+        }
+    }
+
+    // =========================================================================
+    // Motor de filtrado de UI según el rol decodificado del JWT
+    // ADMIN: ve todo. USER: oculta POST, PUT, DELETE de /api/usuarios.
+    // =========================================================================
+    function applyRoleFilters(roles) {
+        if (!roles || roles.length === 0) return;
+
+        const isAdmin = roles.includes('ROLE_ADMIN') || roles.includes('ADMIN');
+
+        if (isAdmin) {
+            showProtectedSections();
+            document.querySelectorAll('.opblock').forEach(block => {
+                block.style.display = 'block';
+            });
+            return;
+        }
+
+        showProtectedSections();
+
+        document.querySelectorAll('.opblock').forEach(block => {
+            const pathEl = block.querySelector('.opblock-summary-path');
+            const methodEl = block.querySelector('.opblock-summary-method');
+            if (!pathEl || !methodEl) return;
+
+            const path = pathEl.textContent.trim();
+            const method = methodEl.textContent.trim().toUpperCase();
+
+            const isUserAdminOperation =
+                (path === '/api/usuarios' && method === 'POST') ||
+                (path.startsWith('/api/usuarios/') && (method === 'DELETE' || method === 'PUT'));
+
+            block.style.display = isUserAdminOperation ? 'none' : 'block';
+        });
+    }
+
+    // =========================================================================
+    // Gestión del ciclo de vida del token
+    // =========================================================================
     function applyToken() {
         let token = document.getElementById('token-input').value.trim();
         if (!token) { alert('❌ Por favor ingresa el token'); return; }
@@ -179,6 +302,12 @@
         localStorage.setItem('swagger-ui-authorizations', JSON.stringify({
             "Bearer": { "schema": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }, "value": currentToken }
         }));
+
+        const decoded = parseJwt(token);
+        if (decoded && decoded.roles) {
+            applyRoleFilters(decoded.roles);
+        }
+
         alert('✅ Token aplicado correctamente!');
         checkAndToggle();
     }
@@ -188,7 +317,10 @@
         currentToken = null;
         localStorage.removeItem('swagger-ui-authorizations');
         updateUI(false);
-        hideAnalisisSection();
+        hideProtectedSections();
+        document.querySelectorAll('.opblock').forEach(block => {
+            block.style.display = 'block';
+        });
     }
 
     function forceLogout() {
@@ -196,21 +328,30 @@
         window.location.reload();
     }
 
-    function hideAnalisisSection() {
+    // =========================================================================
+    // Control de visibilidad de secciones protegidas de Swagger UI
+    // =========================================================================
+    function hideProtectedSections() {
         document.querySelectorAll('.opblock-tag-section').forEach(section => {
-            if (section.querySelector('.opblock-tag')?.textContent.trim().includes('2. Análisis Energético')) {
+            const tag = section.querySelector('.opblock-tag');
+            if (tag && (
+                tag.textContent.trim().includes('2. Análisis Energético') ||
+                tag.textContent.trim().includes('3. Gestión de Usuarios')
+            )) {
                 section.classList.add('hidden-section');
-                section.style.display = 'none';
             }
         });
     }
 
-    function showAnalisisSection() {
+    function showProtectedSections() {
         document.querySelectorAll('.opblock-tag-section').forEach(section => {
-            if (section.querySelector('.opblock-tag')?.textContent.trim().includes('2. Análisis Energético')) {
+            const tag = section.querySelector('.opblock-tag');
+            if (tag && (
+                tag.textContent.trim().includes('2. Análisis Energético') ||
+                tag.textContent.trim().includes('3. Gestión de Usuarios')
+            )) {
                 section.classList.remove('hidden-section');
                 section.style.display = 'block';
-                section.classList.add('is-open');
             }
         });
     }
@@ -219,6 +360,9 @@
         return currentToken !== null && currentToken.length > 20;
     }
 
+    // =========================================================================
+    // Sincronización de la interfaz de estado (badges, banners, botones)
+    // =========================================================================
     function updateUI(isAuthenticated) {
         const badge = document.getElementById('status-badge');
         const btnLogout = document.getElementById('btn-logout');
@@ -231,14 +375,22 @@
             btnLogout.style.display = 'block';
             reqBanner.style.display = 'none';
             sucBanner.style.display = 'block';
-            showAnalisisSection();
+            showProtectedSections();
+
+            if (currentToken) {
+                const token = currentToken.replace('Bearer ', '');
+                const decoded = parseJwt(token);
+                if (decoded && decoded.roles) {
+                    applyRoleFilters(decoded.roles);
+                }
+            }
         } else {
             badge.className = 'status-badge not-authenticated';
             badge.innerHTML = '🔒 No Autenticado';
             btnLogout.style.display = 'none';
             reqBanner.style.display = 'block';
             sucBanner.style.display = 'none';
-            hideAnalisisSection();
+            hideProtectedSections();
         }
     }
 
@@ -254,29 +406,28 @@
         document.getElementById('error-details').textContent = details || '';
     }
 
-    // Inicialización mejorada con verificación
+    // =========================================================================
+    // Bootstrap: inicialización de Swagger UI
+    // =========================================================================
     window.onload = async function() {
         console.log('🚀 Inicializando Swagger UI...');
         localStorage.removeItem('swagger-ui-authorizations');
         currentToken = null;
 
         try {
-            // Ocultar loading y mostrar Swagger UI
             document.getElementById('loading-msg').style.display = 'none';
             document.getElementById('swagger-ui').style.display = 'block';
 
-            // Inicializar Swagger UI con URL en lugar de fetch manual
-            // Esto evita problemas de CORS/403 en la carga inicial
             uiInstance = SwaggerUIBundle({
                 url: '/v3/api-docs',
                 dom_id: '#swagger-ui',
-                presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
-                layout: "StandaloneLayout",
+                presets: [SwaggerUIBundle.presets.apis],
+                layout: "BaseLayout",
                 docExpansion: "list",
                 defaultModelsExpandDepth: 0,
                 defaultModelExpandDepth: 0,
+                supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch', 'options'],
                 requestInterceptor: (req) => {
-                    // Agregar token si existe para Try It Out
                     if (currentToken) {
                         req.headers['Authorization'] = currentToken;
                     }
@@ -284,27 +435,29 @@
                 },
                 onComplete: function() {
                     console.log('✅ Swagger UI cargado y listo');
-                    hideAnalisisSection();
+                    hideProtectedSections();
                     updateUI(false);
+
+                    if (currentToken) {
+                        const token = currentToken.replace('Bearer ', '');
+                        const decoded = parseJwt(token);
+                        if (decoded && decoded.roles) {
+                            applyRoleFilters(decoded.roles);
+                        }
+                    }
                 },
                 onFailure: function(error) {
                     console.error('❌ Error en Swagger UI:', error);
                     showError(
                         'No se pudo cargar la documentación de la API',
-                        'Error: ' + (error.message || JSON.stringify(error)) +
-                        '\n\nVerifica que:\n1. La app Spring Boot esté corriendo en el puerto 8080\n' +
-                        '2. SecurityConfig.java permita acceso a /v3/api-docs\n' +
-                        '3. El archivo swagger-custom.html esté en src/main/resources/static/'
+                        'Error: ' + (error.message || JSON.stringify(error))
                     );
                 }
             });
 
         } catch (error) {
             console.error('❌ Error al inicializar:', error);
-            showError(
-                'Error inesperado al cargar la documentación',
-                error.message
-            );
+            showError('Error inesperado al cargar la documentación', error.message);
         }
     };
 </script>

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,123 +21,119 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
+ * ================================================================================================
  * Configuración central de seguridad para la aplicación Spring Boot.
- * <p>
- * Esta clase es responsable de definir la cadena de filtros de seguridad (SecurityFilterChain),
- * establecer las reglas de autorización por rutas, configurar la gestión de sesiones como
- * STATELESS (sin estado) para APIs RESTful, e integrar el filtro personalizado de validación JWT.
- * </p>
  *
- * @author Backend Specialist
- * @version 1.1
+ * Fix aplicado (Simplificación de roles):
+ *   - Se removió MODERATOR del enum de dominio y de todas las expresiones hasAnyRole().
+ *   - La operación GET sobre /api/usuarios/** ahora solo admite ADMIN y USER.
+ * ================================================================================================
  */
 @Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    // =========================================================================
+    // 1. Lista centralizada de rutas públicas (evita duplicar en el filtro JWT)
+    // =========================================================================
+    private static final String[] PUBLIC_PATHS = {
+            "/swagger-custom.html",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/v3/api-docs",
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/h2-console/**",
+            "/error"                    // Evita 403 en páginas de error de Spring Boot
+    };
 
-
-    /**
-     * Configura y personaliza la cadena de filtros de seguridad HTTP.
-     *
-     * @param http El objeto {@link HttpSecurity} proporcionado por Spring Security.
-     * @return Una instancia configurada de {@link SecurityFilterChain}.
-     * @throws Exception Si ocurre un error durante la configuración.
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // TRAZABILIDAD: Este log confirmará que Spring está cargando ESTA versión del archivo
         log.info("=======================================================================");
-        log.info("⚙️ [SECURITY] Configurando SecurityFilterChain con rutas públicas de Swagger...");
+        log.info(" [SECURITY] Iniciando configuración de SecurityFilterChain...");
+        log.info(" [SECURITY] Rutas públicas registradas: {}", Arrays.toString(PUBLIC_PATHS));
+        log.info(" [SECURITY] Modelo de roles activo: ADMIN | USER");
         log.info("=======================================================================");
 
         http
-                // =====================================================================
-                // 1. Desactivación de CSRF (Cross-Site Request Forgery)
-                // En una API REST stateless que utiliza tokens JWT en los headers
-                // en lugar de cookies de sesión, la protección CSRF no es necesaria.
-                // =====================================================================
+                // -----------------------------------------------------------------
+                // Desactivar CSRF (API stateless)
+                // -----------------------------------------------------------------
                 .csrf(csrf -> csrf.disable())
 
-                // =====================================================================
-                // 2. Configuración de CORS (Cross-Origin Resource Sharing)
-                // Permite que clientes frontend o herramientas como Swagger/Postman
-                // realicen peticiones desde diferentes orígenes de manera controlada.
-                // =====================================================================
+                // -----------------------------------------------------------------
+                // Configuración CORS
+                // -----------------------------------------------------------------
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // =====================================================================
-                // 3. Reglas de Autorización de Rutas (Endpoint Security)
-                // =====================================================================
+                // -----------------------------------------------------------------
+                // Reglas de autorización por URL (orden: más específico → más genérico)
+                // -----------------------------------------------------------------
                 .authorizeHttpRequests(auth -> auth
-                        // 3.1. Rutas PÚBLICAS: No requieren token JWT
-                        .requestMatchers(HttpMethod.POST, "/login").permitAll()// Permitir acceso público a /login
-                        .requestMatchers(
-                                "/swagger-custom.html",
-                                "/v3/api-docs/**",
-                                "/v3/api-docs",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/webjars/**",
-                                "/api/auth/**",
-                                "/h2-console/**"
-                        ).permitAll()
+                        // 1. Documentación y recursos estáticos (sin autenticación)
+                        .requestMatchers(PUBLIC_PATHS).permitAll()
 
-                        // 3.2. Rutas PROTEGIDAS: Requieren autenticación JWT válida
+                        // 2. Endpoints de autenticación (login/register)
+                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+
+                        // 3. Gestión de usuarios con roles (solo ADMIN y USER)
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/usuarios/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasRole("ADMIN")
+
+                        // 4. Cualquier otra petición requiere autenticación
                         .anyRequest().authenticated()
                 )
 
-                // =====================================================================
-                // 4. Gestión de Sesiones STATELESS (Sin estado)
-                // Spring Security no creará ni utilizará sesiones HTTP (HttpSession).
-                // =====================================================================
+                // -----------------------------------------------------------------
+                // Sin sesiones (JWT stateless)
+                // -----------------------------------------------------------------
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // =====================================================================
-                // 5. Integración del Filtro JWT Personalizado
-                // Se ejecuta ANTES del filtro de autenticación por defecto de Spring.
-                // =====================================================================
+                // -----------------------------------------------------------------
+                // Filtro JWT antes del filtro de autenticación de usuario/contraseña
+                // NOTA: El filtro JWT DEBE tener lógica para saltar rutas públicas
+                // -----------------------------------------------------------------
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // =====================================================================
-                // 6. Configuración de Cabeceras de Seguridad (Headers)
-                // Permite que la consola H2 se renderice dentro de un iframe.
-                // =====================================================================
+                // -----------------------------------------------------------------
+                // Headers para H2 Console (frames)
+                // -----------------------------------------------------------------
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
-        log.info("✅ [SECURITY] SecurityFilterChain configurado exitosamente.");
+        log.info("[SECURITY] SecurityFilterChain configurado exitosamente.");
         return http.build();
     }
 
     /**
-     * Configura las políticas de CORS para la aplicación.
-     *
-     * @return Una instancia de {@link CorsConfigurationSource} con las reglas definidas.
+     * Configuración CORS para permitir peticiones desde el frontend.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Orígenes permitidos (Desarrollo local)
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:8080",
                 "http://localhost:3000",
                 "http://localhost:4200"
         ));
 
-        // Métodos HTTP permitidos
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+        ));
 
-        // Cabeceras permitidas (incluyendo 'Authorization' para el token JWT)
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
@@ -145,13 +142,10 @@ public class SecurityConfig {
                 "Origin"
         ));
 
-        // Permitir el envío de credenciales
         configuration.setAllowCredentials(true);
 
-        // Aplicar esta configuración a todas las rutas
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 
