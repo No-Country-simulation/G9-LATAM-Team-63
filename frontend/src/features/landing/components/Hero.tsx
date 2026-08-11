@@ -35,24 +35,6 @@ export default function Hero() {
                 Cómo funciona
               </a>
             </div>
-
-            <div className="hero__stats" aria-label="Estadísticas de EnergiAI">
-              <div>
-                <span className="hero__stat-value">3,200+</span>
-                <span className="hero__stat-label">usuarios activos</span>
-              </div>
-              <div>
-                <span className="hero__stat-value">18%</span>
-                <span className="hero__stat-label">ahorro promedio</span>
-              </div>
-              <div>
-                <span className="hero__stat-value">4.9</span>
-                <span className="hero__stat-label">
-                  <Icon name="star" size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                  valoración
-                </span>
-              </div>
-            </div>
           </div>
 
           <div className="hero__visual">
@@ -61,7 +43,7 @@ export default function Hero() {
                 <Icon name="dollar" size={16} />
               </div>
               <div>
-                <span className="float-badge__value">-$56/mes</span>
+                <span className="float-badge__value">-$47/mes</span>
                 <span className="float-badge__label">Ahorro potencial</span>
               </div>
             </div>
@@ -84,14 +66,14 @@ export default function Hero() {
                     Análisis IA
                   </strong>
                 </div>
-                <div className="dashboard__badge">
+                <div className="dashboard__badge" style={{ color: 'var(--color-accent-warn)', background: 'rgba(217, 119, 6, 0.12)' }}>
                   <Icon name="check" size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                  Eficiente
+                  Moderado
                 </div>
               </div>
 
               <div className="dashboard__gauge-wrapper">
-                <svg className="gauge-svg" viewBox="0 0 200 120" aria-label="Puntuación de eficiencia: 78 de 100">
+                <svg className="gauge-svg" viewBox="0 0 200 120" aria-label="Confianza del modelo: 70%">
                   <defs>
                     <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stopColor="#1e40af" />
@@ -100,8 +82,8 @@ export default function Hero() {
                   </defs>
                   <path d="M 20 110 A 80 80 0 1 1 180 110" className="gauge__track" />
                   <path d="M 20 110 A 80 80 0 1 1 180 110" className="gauge__fill" />
-                  <text x="100" y="95" textAnchor="middle" className="gauge__label">78</text>
-                  <text x="100" y="112" textAnchor="middle" className="gauge__sublabel">de 100 pts</text>
+                  <text x="100" y="95" textAnchor="middle" className="gauge__label">70</text>
+                  <text x="100" y="112" textAnchor="middle" className="gauge__sublabel">% confianza</text>
                 </svg>
               </div>
 
@@ -115,7 +97,7 @@ export default function Hero() {
                   <span className="metric-tile__label">Costo est.</span>
                 </div>
                 <div className="metric-tile metric-tile--amber">
-                  <span className="metric-tile__value">18%</span>
+                  <span className="metric-tile__value">15%</span>
                   <span className="metric-tile__label">Ahorro</span>
                 </div>
               </div>
@@ -147,9 +129,9 @@ export default function Hero() {
               <div className="dashboard__classification">
                 <div className="classification__tag">
                   <Icon name="check" size={14} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-                  Eficiente
+                  Moderado
                 </div>
-                <span className="classification__info">Clasificación IA · 78% confianza</span>
+                <span className="classification__info">Clasificación IA · 70% confianza</span>
               </div>
             </div>
           </div>

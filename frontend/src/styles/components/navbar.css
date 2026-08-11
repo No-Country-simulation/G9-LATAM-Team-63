@@ -68,6 +68,13 @@
   text-decoration: none;
 }
 
+.logo__icon {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .logo__text {
   font-family: var(--font-primary);
   font-size: 1.2rem;

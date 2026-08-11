@@ -28,6 +28,7 @@ import './styles/components/footer.css'
 import './styles/components/form.css'
 import './styles/components/results.css'
 import './styles/components/history.css'
+import './styles/components/auth.css'
 
 import App from './App.tsx'
 

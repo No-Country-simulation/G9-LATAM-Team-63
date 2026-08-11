@@ -58,11 +58,12 @@ export default function HistoryPage() {
                   <th>Equipos</th>
                   <th>Perfil</th>
                   <th>Costo est.</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((entry) => (
-                  <tr key={entry.id}>
+                  <tr key={entry.id} className="history-table__row">
                     <td>{new Date(entry.created_at).toLocaleDateString()}</td>
                     <td>{entry.input.consumoKwh} kWh</td>
                     <td>{entry.input.cantidadEquipos}</td>
@@ -72,6 +73,15 @@ export default function HistoryPage() {
                       </span>
                     </td>
                     <td>${entry.result.costo_estimado_mensual.toFixed(2)}</td>
+                    <td className="history-table__action">
+                      <Link
+                        to={`/resultados/${entry.id}`}
+                        className="history-table__view"
+                        aria-label={`Ver detalle del análisis ${entry.id}`}
+                      >
+                        Ver detalle
+                      </Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>

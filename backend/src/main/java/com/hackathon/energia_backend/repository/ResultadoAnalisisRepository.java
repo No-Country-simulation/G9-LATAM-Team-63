@@ -37,4 +37,15 @@ public interface ResultadoAnalisisRepository extends JpaRepository<ResultadoAnal
      * @return Una lista de {@link ResultadoAnalisis} que cumplen con el criterio de búsqueda.
      */
     List<ResultadoAnalisis> findByCategoria(String categoria);
+
+    /**
+     * Busca todos los análisis de un usuario específico, ordenados del más reciente al más antiguo.
+     * <p>
+     * Spring Data JPA deriva la consulta navegando la propiedad {@code usuario.id} de la entidad.
+     * </p>
+     *
+     * @param usuarioId Identificador del usuario propietario de los análisis.
+     * @return Lista de {@link ResultadoAnalisis} del usuario, ordenada por fecha de creación descendente.
+     */
+    List<ResultadoAnalisis> findByUsuarioIdOrderByFechaCreacionDesc(Long usuarioId);
 }
