@@ -1,6 +1,5 @@
 package com.hackathon.energia_backend.service;
 
-import com.hackathon.energia_backend.dto.request.RegistroRequest;
 import com.hackathon.energia_backend.entity.Usuario;
 import com.hackathon.energia_backend.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,6 @@ public class AutenticacionService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-<<<<<<< HEAD
     //==========================================================================================
     //* Carga un usuario por su username y lo adapta al contrato {@link UserDetails}
     //==========================================================================================
@@ -70,27 +68,6 @@ public class AutenticacionService implements UserDetailsService {
     public UserDetails authenticate(String username, String rawPassword) {
         UserDetails user = loadUserByUsername(username);
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-=======
-    public Usuario registrarUsuario(RegistroRequest request) {
-        if (Repository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("El nombre de usuario ya se encuentra registrado");
-        }
-
-        Usuario usuario = Usuario.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .build();
-
-        return Repository.save(usuario);
-    }
-
-    public Usuario loadUserByUsername(String username, String password) throws UsernameNotFoundException {
-        Usuario usuario = Repository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
-
-        // Verificación de la contraseña contra el hash BCrypt almacenado
-        if (!passwordEncoder.matches(password, usuario.getPassword())) {
->>>>>>> 1bf5e3c056f6c589018e6740dfc590644ddeec8f
             throw new BadCredentialsException("Credenciales inválidas");
         }
         return user;

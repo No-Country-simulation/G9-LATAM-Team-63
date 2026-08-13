@@ -1,3 +1,7 @@
+// ================================================================
+// Router principal de la aplicación.
+// ================================================================
+
 import { lazy, Suspense, useEffect } from 'react'
 import {
   createBrowserRouter,
@@ -16,8 +20,6 @@ import HelpPage from '../features/help/pages/HelpPage'
 import LoginPage from '../features/auth/pages/LoginPage'
 import RegisterPage from '../features/auth/pages/RegisterPage'
 
-// ResultsPage se carga bajo demanda: incluye los gráficos de Recharts
-// y no debe penalizar la carga inicial del sitio.
 const ResultsPage = lazy(() => import('../features/results/pages/ResultsPage'))
 
 const resultsElement = (
@@ -26,9 +28,6 @@ const resultsElement = (
   </Suspense>
 )
 
-// ─── ProtectedRoute ──────────────────────────────────────────────────────────
-// Redirige a /login con { from: location.pathname } si no hay sesión activa.
-// LoginPage lee ese estado para volver a la ruta protegida tras el login.
 function ProtectedRoute() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const location = useLocation()
@@ -45,16 +44,12 @@ function ProtectedRoute() {
   return <Outlet />
 }
 
-// ─── UnauthorizedWatcher ─────────────────────────────────────────────────────
-// Escucha el evento custom lanzado por client.ts cuando recibe un 401.
-// Usa el store directamente (sin hooks de react-router para evitar dep circular).
 function UnauthorizedWatcher() {
   const logout = useAuthStore((s) => s.logout)
 
   useEffect(() => {
     const handler = () => {
       logout()
-      // Redireccionamos recargando — el router ya tomará la ruta protegida y mandará a /login
       window.location.href = '/login'
     }
     window.addEventListener('energiai:unauthorized', handler)
@@ -64,9 +59,7 @@ function UnauthorizedWatcher() {
   return null
 }
 
-// ─── Router ──────────────────────────────────────────────────────────────────
 const router = createBrowserRouter([
-  // Layout principal (con Navbar y Footer)
   {
     path: '/',
     element: (
@@ -78,7 +71,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <LandingPage /> },
       { path: 'ayuda', element: <HelpPage /> },
-      // Rutas protegidas — requieren sesión
       {
         element: <ProtectedRoute />,
         children: [
@@ -86,12 +78,10 @@ const router = createBrowserRouter([
           { path: 'historial', element: <HistoryPage /> },
         ],
       },
-      // /resultados no requiere auth (redirige solo si no hay result en store)
-      { path: 'resultados', element: resultsElement },
+      // ✅ Solo ruta con ID. El backend responde GET /api/analisis/{id}
       { path: 'resultados/:id', element: resultsElement },
     ],
   },
-  // Auth — sin Layout (sin Navbar/Footer)
   { path: '/login', element: <LoginPage /> },
   { path: '/registro', element: <RegisterPage /> },
 ])

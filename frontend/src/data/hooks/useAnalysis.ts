@@ -1,3 +1,9 @@
+// ================================================================
+// Hook de mutación para crear análisis energético.
+// Envía los datos al backend (POST /api/analisis) y persiste
+// el resultado en el store global + invalida el caché del historial.
+// ================================================================
+
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { postAnalysis } from '../api/analysis'
 import type { AnalysisInput, AnalysisResult } from '../types/analysis'
@@ -9,12 +15,11 @@ export function useAnalysisMutation() {
   const queryClient = useQueryClient()
 
   return useMutation<AnalysisResult, ApiError, AnalysisInput>({
-    // Sin fallback: el análisis es 100% real o falla con error visible
+    // Delega 100% al backend. Sin fallback local.
     mutationFn: (input) => postAnalysis(input),
     onSuccess: (data) => {
       setResult(data)
-      // El historial vive en el backend: invalidar la query para que
-      // HistoryPage muestre el análisis recién creado
+      // Fuerza refetch del historial para mostrar el análisis recién creado
       queryClient.invalidateQueries({ queryKey: ['history'] })
     },
   })

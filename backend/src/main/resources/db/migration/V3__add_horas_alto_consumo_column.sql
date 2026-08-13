@@ -1,0 +1,1 @@
+ALTER TABLE analisis_energetico ADD COLUMN horas_alto_consumo INT;

@@ -43,7 +43,7 @@ export default function ConsumptionForm() {
     try {
       const result = await mutation.mutateAsync(data)
       if (result) {
-        navigate('/resultados')
+        navigate(`/resultados/${result.idAnalisis}`)
       }
     } catch (err) {
       if (err instanceof ApiError) {

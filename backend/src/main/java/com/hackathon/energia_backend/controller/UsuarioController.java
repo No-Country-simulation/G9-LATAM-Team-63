@@ -22,15 +22,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * ================================================================================================
- * Controlador REST para la gestión de usuarios y sus permisos.
- *
- * Fix aplicado (Simplificación de roles):
- *   - Eliminado MODERATOR de todas las expresiones SpEL.
- *   - listarUsuarios() ahora admite hasAnyRole('ADMIN', 'USER').
- * ================================================================================================
- */
+
+// ================================================================================================
+// Controlador REST para la gestión de usuarios y sus permisos.
+// Fix aplicado (Simplificación de roles):
+// Eliminado MODERATOR de todas las expresiones SpEL.
+// listarUsuarios() ahora admite hasAnyRole('ADMIN', 'USER').
+// ================================================================================================
+
 @RestController
 @RequestMapping("/api/usuarios")
 @RequiredArgsConstructor
@@ -44,11 +43,10 @@ public class UsuarioController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Crea un nuevo usuario en el sistema con roles específicos.
-     *
-     * Seguridad: Solo usuarios con rol ADMIN pueden ejecutar esta operación.
-     */
+    //=======================================================================================
+    // Crea un nuevo usuario en el sistema con roles específicos.
+    // Seguridad: Solo usuarios con rol ADMIN pueden ejecutar esta operación.
+    //=======================================================================================
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
@@ -102,11 +100,10 @@ public class UsuarioController {
 
     public record ErrorResponse(String error) {}
 
-    /**
-     * Lista todos los usuarios registrados en el sistema.
-     *
-     * Seguridad: Accesible para roles ADMIN y USER.
-     */
+    //========================================================================
+    // Lista todos los usuarios registrados en el sistema.
+    // Seguridad: Accesible para roles ADMIN y USER.
+    //========================================================================
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @Operation(

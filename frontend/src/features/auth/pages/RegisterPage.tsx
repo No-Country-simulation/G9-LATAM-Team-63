@@ -8,7 +8,6 @@ import { Icon } from '../../../shared/components/Icons'
 import Input from '../../../shared/components/Input'
 import Button from '../../../shared/components/Button'
 
-// "confirmarPassword" es validación solo de frontend — no se envía al backend
 const registerSchema = z
   .object({
     username: z
@@ -19,11 +18,11 @@ const registerSchema = z
       .string()
       .min(6, 'La contraseña debe tener al menos 6 caracteres')
       .max(100, 'La contraseña no puede superar los 100 caracteres'),
-    confirmarPassword: z.string(),
+    confirmPassword: z.string(), // ← corregido: debe coincidir con el backend
   })
-  .refine((data) => data.password === data.confirmarPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',
-    path: ['confirmarPassword'],
+    path: ['confirmPassword'],
   })
 
 type RegisterFormData = z.infer<typeof registerSchema>
@@ -42,9 +41,12 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // Solo enviamos username y password al backend (sin confirmarPassword)
-      await mutation.mutateAsync({ username: data.username, password: data.password })
-      // El token viene en la respuesta → login automático en onSuccess del hook
+      // Enviar los 3 campos que espera el backend
+      await mutation.mutateAsync({
+        username: data.username,
+        password: data.password,
+        confirmPassword: data.confirmPassword, // ← agregado
+      })
       navigate('/analizar', { replace: true })
     } catch {
       // El error ya está en mutation.error
@@ -61,7 +63,6 @@ export default function RegisterPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        {/* Encabezado */}
         <div className="auth-card__header">
           <div className="section-label">
             <Icon name="zap" size={12} />
@@ -75,7 +76,6 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* Error del backend */}
         {errorMessage && (
           <div className="auth-error" role="alert">
             <Icon name="alert" size={16} />
@@ -103,13 +103,13 @@ export default function RegisterPage() {
             {...register('password')}
           />
           <Input
-            id="register-confirmar-password"
+            id="register-confirm-password"
             label="Confirmar contraseña"
             type="password"
             autoComplete="new-password"
             placeholder="Repite tu contraseña"
-            error={errors.confirmarPassword?.message}
-            {...register('confirmarPassword')}
+            error={errors.confirmPassword?.message} // ← corregido
+            {...register('confirmPassword')} // ← corregido
           />
 
           <div className="auth-card__actions">

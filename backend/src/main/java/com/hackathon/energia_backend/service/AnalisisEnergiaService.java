@@ -1,6 +1,10 @@
 package com.hackathon.energia_backend.service;
 
+
+import com.hackathon.energia_backend.client.DataScienceClient;
 import com.hackathon.energia_backend.config.AppConfig;
+import com.hackathon.energia_backend.dto.datascience.DataScienceRequest;
+import com.hackathon.energia_backend.dto.datascience.DataScienceResponse;
 import com.hackathon.energia_backend.dto.request.AnalisisRequest;
 import com.hackathon.energia_backend.dto.response.AnalisisHistorialResponse;
 import com.hackathon.energia_backend.dto.response.AnalisisResponse;
@@ -11,61 +15,93 @@ import com.hackathon.energia_backend.exception.AccesoDenegadoException;
 import com.hackathon.energia_backend.exception.ResourceNotFoundException;
 import com.hackathon.energia_backend.repository.ResultadoAnalisisRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Servicio de negocio para el análisis de consumo energético.
- *
- * Esta clase encapsula la lógica de negocio principal de la aplicación,
- * coordinando la validación de datos, el procesamiento del análisis,
- * la persistencia en base de datos y la generación de recomendaciones
- * personalizadas basadas en patrones de consumo.
- */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AnalisisEnergiaService {
 
-    // ============================================
-    // Inyección de Dependencias
-    // Repositorio para operaciones de persistencia
-    // de la entidad ResultadoAnalisis
-    // ============================================
     private final ResultadoAnalisisRepository repository;
+    private final DataScienceClient dataScienceClient;
 
-    /**
-     * Procesa una solicitud de análisis energético completo.
-     *
-     * @param req     Objeto DTO con los datos de entrada del análisis.
-     * @param usuario Usuario autenticado que realiza el análisis; se persiste
-     *                como propietario del registro para alimentar su historial.
-     * @return {@link AnalisisResponse} con los resultados del análisis,
-     *         incluyendo categoría, costo estimado y recomendaciones.
-     */
     // ============================================
-    // Método Principal: Realizar Análisis Energético
-    // Flujo:
-    // 1. Determina la categoría de eficiencia energética
-    // 2. Calcula el costo estimado mensual
-    // 3. Persiste el resultado en la base de datos
-    //    asociándolo al usuario autenticado
-    // 4. Construye y retorna la respuesta al cliente
+    // Método Principal: Realizar Análisis
+    // 1. Intenta usar la API de Data Science (XGBoost)
+    // 2. Si falla, hace fallback al motor de reglas local
     // ============================================
     public AnalisisResponse realizarAnalisis(AnalisisRequest req, Usuario usuario) {
-        // Determinar la categoría de eficiencia basada en las reglas de negocio
-        CategoriaEnergia categoria = determinarCategoria(req);
+        try {
+            return realizarAnalisisConDataScience(req, usuario);
+        } catch (Exception e) {
+            log.warn("Fallback a motor local. Razón: {}", e.getMessage());
+            return realizarAnalisisLocal(req, usuario);
+        }
+    }
 
-        // Calcular costo estimado aplicando la tarifa configurada
+    // ============================================
+    // Integración con API Data Science
+    // ============================================
+    private AnalisisResponse realizarAnalisisConDataScience(AnalisisRequest req, Usuario usuario) {
+        DataScienceRequest dsReq = mapToDataScienceRequest(req);
+        DataScienceResponse dsResp = dataScienceClient.predict(dsReq);
+
+        double costo = dsResp.getCostoEstimadoMensual() != null
+                ? dsResp.getCostoEstimadoMensual()
+                : req.getConsumoKwh() * AppConfig.TARIFA_KWH;
+
+        double probabilidad = dsResp.getProbabilidad() != null ? dsResp.getProbabilidad() : 0.0;
+
+        ResultadoAnalisis guardado = repository.save(ResultadoAnalisis.builder()
+                .consumoKwh(req.getConsumoKwh())
+                .usoHorarioPico(req.getUsoHorarioPico())
+                .cantidadEquipos(req.getCantidadEquipos())
+                .tipoInmueble(req.getTipoInmueble())
+                .numeroHabitantes(req.getNumeroHabitantes())
+                .antiguedadInmueble(req.getAntiguedadInmueble())
+                .calefaccion(req.getCalefaccion())
+                .aireAcondicionado(req.getAireAcondicionado())
+                .horasAltoConsumo(req.getHorasAltoConsumo())
+                .categoria(dsResp.getCategoria())
+                .probabilidad(probabilidad)
+                .costoEstimadoMensual(costo)
+                .usuario(usuario)
+                .build());
+
+        return AnalisisResponse.builder()
+                .categoria(dsResp.getCategoria())
+                .probabilidad(probabilidad)
+                .recomendaciones(dsResp.getRecomendaciones())
+                .costoEstimadoMensual(costo)
+                .idAnalisis(guardado.getId())
+                .build();
+    }
+
+    private DataScienceRequest mapToDataScienceRequest(AnalisisRequest req) {
+        DataScienceRequest ds = new DataScienceRequest();
+        ds.setConsumoKwh(req.getConsumoKwh());
+        ds.setCantidadEquipos(req.getCantidadEquipos());
+        ds.setHorasAltoConsumo(req.getHorasAltoConsumo());
+        ds.setTipoInmueble(req.getTipoInmueble());
+        ds.setUsoHorarioPico(req.getUsoHorarioPico());
+        ds.setNumeroHabitantes(req.getNumeroHabitantes());
+        ds.setAntiguedadInmueble(req.getAntiguedadInmueble());
+        ds.setCalefaccion(req.getCalefaccion());
+        ds.setAireAcondicionado(req.getAireAcondicionado());
+        return ds;
+    }
+
+    // ============================================
+    // Fallback: Motor de reglas local (original)
+    // ============================================
+    private AnalisisResponse realizarAnalisisLocal(AnalisisRequest req, Usuario usuario) {
+        CategoriaEnergia categoria = determinarCategoria(req);
         double costo = req.getConsumoKwh() * AppConfig.TARIFA_KWH;
 
-        // ============================================
-        // Paso 1: Persistir en Base de Datos
-        // Construye la entidad desde el DTO de request,
-        // asociándola al usuario autenticado,
-        // y la guarda utilizando el repositorio JPA
-        // ============================================
         ResultadoAnalisis guardado = repository.save(ResultadoAnalisis.builder()
                 .consumoKwh(req.getConsumoKwh())
                 .usoHorarioPico(req.getUsoHorarioPico())
@@ -82,11 +118,6 @@ public class AnalisisEnergiaService {
                 .usuario(usuario)
                 .build());
 
-        // ============================================
-        // Paso 2: Construir Respuesta al Cliente
-        // Transforma la entidad guardada en DTO de respuesta
-        // incluyendo recomendaciones personalizadas
-        // ============================================
         return AnalisisResponse.builder()
                 .categoria(categoria.getNombre())
                 .probabilidad(categoria.getProbabilidadBase())
@@ -96,28 +127,13 @@ public class AnalisisEnergiaService {
                 .build();
     }
 
-    /**
-     * Consulta un análisis previamente guardado por su identificador único,
-     * verificando que pertenezca al usuario autenticado.
-     *
-     * @param id      Identificador del análisis a consultar.
-     * @param usuario Usuario autenticado que realiza la consulta.
-     * @return {@link AnalisisHistorialResponse} con los datos del análisis encontrado.
-     * @throws ResourceNotFoundException si no existe un análisis con el ID proporcionado.
-     * @throws AccesoDenegadoException   si el análisis pertenece a otro usuario.
-     */
     // ============================================
-    // Método: Consultar Análisis por ID
-    // Recupera un registro existente de la BD verificando
-    // que el usuario autenticado sea su propietario
+    // Consultas (sin cambios funcionales)
     // ============================================
     public AnalisisHistorialResponse consultarPorId(Long id, Usuario usuario) {
-        // Buscar en BD o lanzar excepción si no existe
         ResultadoAnalisis entidad = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Análisis no encontrado con ID: " + id));
 
-        // Validar propiedad: los análisis huérfanos (sin dueño, creados antes
-        // de existir la relación) se tratan como inexistentes para el usuario
         if (entidad.getUsuario() == null || !entidad.getUsuario().getId().equals(usuario.getId())) {
             throw new AccesoDenegadoException("No tienes permiso para consultar este análisis");
         }
@@ -125,18 +141,6 @@ public class AnalisisEnergiaService {
         return mapToHistorial(entidad);
     }
 
-    /**
-     * Recupera el historial completo de análisis del usuario autenticado,
-     * ordenado del más reciente al más antiguo.
-     *
-     * @param usuario Usuario autenticado cuyo historial se consulta.
-     * @return Lista de {@link AnalisisHistorialResponse} con los análisis del usuario.
-     */
-    // ============================================
-    // Método: Listar Historial por Usuario
-    // Consulta derivada del repositorio filtrada por
-    // el id del usuario autenticado
-    // ============================================
     public List<AnalisisHistorialResponse> listarHistorial(Usuario usuario) {
         return repository.findByUsuarioIdOrderByFechaCreacionDesc(usuario.getId())
                 .stream()
@@ -144,14 +148,9 @@ public class AnalisisEnergiaService {
                 .toList();
     }
 
-    /**
-     * Transforma una entidad persistida en el DTO de historial,
-     * regenerando las recomendaciones a partir de los datos de entrada guardados
-     * para que coincidan con las mostradas al momento del análisis.
-     *
-     * @param entidad Entidad {@link ResultadoAnalisis} persistida.
-     * @return {@link AnalisisHistorialResponse} con entrada, resultado y fecha.
-     */
+    // ============================================
+    // Mapeos y utilidades (sin cambios)
+    // ============================================
     private AnalisisHistorialResponse mapToHistorial(ResultadoAnalisis entidad) {
         CategoriaEnergia categoria = CategoriaEnergia.valueOf(entidad.getCategoria().toUpperCase());
 
@@ -174,10 +173,6 @@ public class AnalisisEnergiaService {
                 .build();
     }
 
-    /**
-     * Reconstruye un {@link AnalisisRequest} desde una entidad persistida,
-     * para reutilizar la generación de recomendaciones con los datos originales.
-     */
     private AnalisisRequest toRequest(ResultadoAnalisis entidad) {
         AnalisisRequest req = new AnalisisRequest();
         req.setConsumoKwh(entidad.getConsumoKwh());
@@ -192,20 +187,6 @@ public class AnalisisEnergiaService {
         return req;
     }
 
-    /**
-     * Clasifica el consumo energético según las reglas de negocio.
-     *
-     * @param req Datos de entrada del análisis.
-     * @return {@link CategoriaEnergia} que representa la eficiencia del consumo.
-     */
-    // ============================================
-    // Método Privado: Determinar Categoría Energética
-    // Aplica las mismas reglas de clasificación
-    // Criterios:
-    // - Ratio kWh/equipo > 55 y horas > 7 → INEFICIENTE
-    // - Ratio kWh/equipo < 28 y horas < 4 → EFICIENTE
-    // - Cualquier otro caso → MODERADO
-    // ============================================
     private CategoriaEnergia determinarCategoria(AnalisisRequest req) {
         double ratio = req.getConsumoKwh() / req.getCantidadEquipos();
         int horas = req.getHorasAltoConsumo();
@@ -215,29 +196,9 @@ public class AnalisisEnergiaService {
         return CategoriaEnergia.MODERADO;
     }
 
-    /**
-     * Genera recomendaciones personalizadas basadas en la categoría y patrones de consumo.
-     *
-     * @param cat Categoría de eficiencia energética determinada.
-     * @param req Datos originales del análisis (puede ser null si se consulta desde BD).
-     * @return Lista de recomendaciones aplicables al caso específico.
-     */
-    // ============================================
-    // Método Privado: Generar Recomendaciones
-    // Construye un conjunto de sugerencias dinámicas
-    // combinando:
-    // 1. Recomendaciones base según la categoría
-    // 2. Reglas adicionales transversales según
-    //    tipo de inmueble y cantidad de equipos
-    // ============================================
     private List<String> generarRecomendaciones(CategoriaEnergia cat, AnalisisRequest req) {
         List<String> recs = new ArrayList<>();
 
-        // ============================================
-        // Regla 1: Recomendaciones Base por Categoría
-        // Utiliza switch moderno de Java
-        // para mayor legibilidad y mantenibilidad
-        // ============================================
         switch (cat) {
             case INEFICIENTE -> {
                 recs.add("Reducir las horas de alto consumo (actualmente > 7h)");
@@ -256,10 +217,6 @@ public class AnalisisEnergiaService {
             }
         }
 
-        // ============================================
-        // Regla 2: Recomendaciones Transversales
-        // Se aplican independientemente de la categoría
-        // ============================================
         if (req != null) {
             if ("Oficina".equalsIgnoreCase(req.getTipoInmueble()))
                 recs.add("Implementar apagado automático de equipos al cierre de jornada");

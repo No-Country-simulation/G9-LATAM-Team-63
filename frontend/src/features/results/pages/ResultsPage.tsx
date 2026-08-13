@@ -1,3 +1,11 @@
+// ================================================================
+// Página de resultados del análisis energético.
+// Soporta dos modos:
+//   1. Detalle por ID (/resultados/:id) → GET /api/analisis/{id}
+//   2. Fallback temporal (sin ID) → lee del store local
+// En ambos casos, si no hay datos disponibles, redirige al formulario.
+// ================================================================
+
 import { useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
@@ -20,13 +28,13 @@ import { Icon } from '../../../shared/components/Icons'
 export default function ResultsPage() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
+
   const storeResult = useAnalysisStore((s) => s.result)
   const storeInput = useAnalysisStore((s) => s.lastInput)
 
   const isDetail = Boolean(id)
 
-  // Detalle: se consulta al backend (GET /api/analisis/{id}) con el token del usuario.
-  // Un 403 (análisis de otro usuario) o 404 se traducen en la pantalla "no encontrado".
+  // ─── Modo detalle: fetchear del backend por ID ───────────────────────
   const {
     data: historyEntry,
     isLoading: isLoadingDetail,
@@ -38,16 +46,25 @@ export default function ResultsPage() {
     staleTime: 60_000,
   })
 
-  const result: AnalysisResult | null = isDetail ? historyEntry?.result ?? null : storeResult
-  const input: AnalysisInput | null = isDetail ? historyEntry?.input ?? null : storeInput
+  // ─── Resolver fuente de datos ────────────────────────────────────────
+  // Prioridad: backend (si hay ID) → store local (fallback sin ID)
+  const result: AnalysisResult | null = isDetail
+    ? historyEntry?.result ?? null
+    : storeResult
 
-  // Sin ID: redirigir si no hay resultado en el store
+  const input: AnalysisInput | null = isDetail
+    ? historyEntry?.input ?? null
+    : storeInput
+
+  // ─── Guard: redirigir si no hay datos ────────────────────────────────
+  // Sin ID y sin store → volver al formulario (no hay nada que mostrar)
   useEffect(() => {
     if (!isDetail && !storeResult) {
       navigate('/analizar', { replace: true })
     }
   }, [isDetail, storeResult, navigate])
 
+  // ─── Estados de carga y error ────────────────────────────────────────
   if (isDetail && isLoadingDetail) {
     return <Loader text="Cargando resultados..." />
   }
@@ -78,6 +95,7 @@ export default function ResultsPage() {
     return <Loader text="Cargando resultados..." />
   }
 
+  // ─── Fecha de creación ───────────────────────────────────────────────
   const fecha = isDetail && historyEntry
     ? new Date(historyEntry.created_at).toLocaleString('es-PE', {
         day: '2-digit',
@@ -94,6 +112,7 @@ export default function ResultsPage() {
         minute: '2-digit',
       })
 
+  // ─── Render ──────────────────────────────────────────────────────────
   return (
     <section className="results-page">
       <div className="container">
