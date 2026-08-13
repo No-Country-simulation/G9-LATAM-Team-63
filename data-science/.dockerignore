@@ -1,0 +1,44 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Archivos de Python compilados
+__pycache__/
+*.pyc
+*.pyo
+
+# Notebooks
+*.ipynb
+notebooks/
+
+# Datos 
+data/
+
+# Scripts de generación de datos
+scripts/
+
+# Archivos de configuración local
+.env
+*.local
+
+# Logs
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de pruebas
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Archivos de metadatos de modelo
+models/saved/model_metadata.json
