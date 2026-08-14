@@ -1,0 +1,61 @@
+services:
+
+  # ------------------------------------------------------------------
+  # 1. Base de datos
+  # ------------------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: energia-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword   # cambia esto en producción
+      MYSQL_DATABASE: energia_db
+    volumes:
+      - db_data:/var/lib/mysql            # persistencia entre reinicios
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ------------------------------------------------------------------
+  # 2. Backend (Spring Boot + Flyway)
+  # ------------------------------------------------------------------
+  backend:
+    build: ./backend
+    container_name: energia-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Estas variables deben coincidir con las que lees en application.properties
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: energia_db
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+    depends_on:
+      db:
+        condition: service_healthy   # espera a que MySQL acepte conexiones
+
+  # ------------------------------------------------------------------
+  # 3. Frontend (React/Vue servido por Nginx)
+  # ------------------------------------------------------------------
+  frontend:
+    build: ./frontend
+    container_name: energia-frontend
+    ports:
+      - "3000:80"
+
+  # ------------------------------------------------------------------
+  # 4. API de Data Science (Python)
+  # ------------------------------------------------------------------
+  data-science:
+    build: ./data-science
+    container_name: energia-ds
+    ports:
+      - "8000:8000"
+
+volumes:
+  db_data:
