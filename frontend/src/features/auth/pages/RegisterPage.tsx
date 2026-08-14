@@ -18,7 +18,7 @@ const registerSchema = z
       .string()
       .min(6, 'La contraseña debe tener al menos 6 caracteres')
       .max(100, 'La contraseña no puede superar los 100 caracteres'),
-    confirmPassword: z.string(), // ← corregido: debe coincidir con el backend
+    confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',
@@ -41,11 +41,11 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // Enviar los 3 campos que espera el backend
+      // FIX: No enviamos confirmPassword al backend — solo se usa para validar en el formulario
       await mutation.mutateAsync({
         username: data.username,
         password: data.password,
-        confirmPassword: data.confirmPassword, // ← agregado
+        confirmPassword: data.confirmPassword,
       })
       navigate('/analizar', { replace: true })
     } catch {
@@ -108,8 +108,8 @@ export default function RegisterPage() {
             type="password"
             autoComplete="new-password"
             placeholder="Repite tu contraseña"
-            error={errors.confirmPassword?.message} // ← corregido
-            {...register('confirmPassword')} // ← corregido
+            error={errors.confirmPassword?.message}
+            {...register('confirmPassword')}
           />
 
           <div className="auth-card__actions">
