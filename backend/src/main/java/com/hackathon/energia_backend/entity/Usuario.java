@@ -58,15 +58,15 @@ public class Usuario {
     @Builder.Default
     private Set<Rol> roles = new HashSet<>();
 
-    // =========================================================================
+    //=========================================================================
     // NUEVO CAMPO: rol_usuario en la tabla usuarios
     // Se almacena como VARCHAR(50) en la BD.
     // nullable = false requiere que la migración Flyway incluya DEFAULT 'USER'.
     // =========================================================================
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "rol_usuario", nullable = false)
-    private Rol rolUsuario;
-
+    private Rol rolUsuario = Rol.USER;
     // =========================================================================
     // Callback JPA: fuerza el username a MAYÚSCULAS antes de insertar/actualizar.
     // Se ejecuta automáticamente por el EntityManager; no requiere llamada manual.
