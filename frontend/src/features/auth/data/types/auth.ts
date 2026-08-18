@@ -6,6 +6,7 @@ export interface LoginInput {
 export interface RegisterInput {
   username: string
   password: string
+  confirmPassword: string
 }
 
 export interface AuthResponse {
