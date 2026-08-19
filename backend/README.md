@@ -513,7 +513,7 @@ management.endpoint.health.show-details=never
 
 ![img_1.png](img_1.png)
 
-### application-docker-properties {#application-docker-properties}
+### application-docker-properties 
 
 Este archivo contiene la configuración **específica para el entorno de contenedores Docker**. Sobrescribe la configuración base (`application.properties`) cuando se activa el perfil `docker`.
 
