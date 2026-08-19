@@ -463,7 +463,7 @@ El archivo `application.properties` es el corazón de la configuración de Sprin
 
 ####  Contenido del archivo
 
-
+```
 properties
 # ==========================================
 # Configuración General (común para todos los perfiles)
@@ -526,7 +526,7 @@ Este archivo contiene la configuración **específica para el entorno de contene
 
 ####  Contenido del archivo
 
-
+```
 properties
 # ==========================================
 # Perfil: DOCKER (contenedores)
@@ -578,7 +578,7 @@ Este archivo contiene la configuración **específica para desarrollo local** (I
 
 ####  Contenido del archivo
 
-
+```
 properties
 # ==========================================
 # Perfil: LOCAL (IntelliJ / tu PC)
@@ -737,7 +737,7 @@ docker run -d --name energia-backend -p 8080:8080 energia-backend
 
 La aplicación queda disponible en `http://localhost:8080`.
 
-![img_8.png](img_8.png)
+![img_8.png](assets/img_8.png)
 
 l error 403 Forbidden significa que tu aplicación Spring Boot está funcionando correctamente, 
 pero Spring Security está bloqueando el acceso porque la ruta 
