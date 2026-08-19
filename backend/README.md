@@ -454,7 +454,7 @@ El archivo `application.properties` es el corazón de la configuración de Sprin
 
 ####  Contenido del archivo
 
-
+```
 properties
 # ==========================================
 # Configuración General (común para todos los perfiles)
@@ -501,8 +501,13 @@ app.datascience.read-timeout-ms=10000
 # ==========================================
 management.endpoints.web.exposure.include=health
 management.endpoint.health.show-details=never
-
+```
 ![img_1.png](assets/img_1.png)
+
+<<<<<<< HEAD
+![img_1.png](assets/img_1.png)
+=======
+>>>>>>> a105ac10ca08bf9bcdec747799d2a9272de5e1ce
 
 ### application-docker-properties 
 
@@ -516,7 +521,7 @@ Este archivo contiene la configuración **específica para el entorno de contene
 
 ####  Contenido del archivo
 
-
+```
 properties
 # ==========================================
 # Perfil: DOCKER (contenedores)
@@ -530,8 +535,13 @@ spring.datasource.password=${DB_PASSWORD:rootpassword}
 
 # API Data Science dentro de Docker
 app.datascience.base-url=${DATASCIENCE_URL:http://data-science:8000}
-
+```
 ![img_3.png](assets/img_3.png)
+
+<<<<<<< HEAD
+![img_3.png](assets/img_3.png)
+=======
+>>>>>>> a105ac10ca08bf9bcdec747799d2a9272de5e1ce
 
 Características Clave
 Sintaxis de Variables de Entorno: ${VARIABLE:valor_por_defecto}
@@ -567,7 +577,7 @@ Este archivo contiene la configuración **específica para desarrollo local** (I
 
 ####  Contenido del archivo
 
-
+```
 properties
 # ==========================================
 # Perfil: LOCAL (IntelliJ / tu PC)
@@ -582,14 +592,20 @@ spring.datasource.password=${DB_PASSWORD}
 
 # API Data Science local
 app.datascience.base-url=${DATASCIENCE_URL:http://localhost:8000}
+<<<<<<< HEAD
 
+=======
+```
+>>>>>>> a105ac10ca08bf9bcdec747799d2a9272de5e1ce
 ![img_6.png](assets/img_6.png)
 
 Características Clave
 Password sin valor por defecto:
+```
 La línea spring.datasource.password=${DB_PASSWORD} no tiene valor por defecto
 Esto es intencional por seguridad: obliga al desarrollador a definir la variable de entorno
 La línea comentada #spring.datasource.password=${DB_PASSWORD:rootpassword} sirve como referencia
+```
 Hosts Locales:
 localhost: Apunta a tu máquina física
 Puerto 3306: Puerto estándar de MySQL (o el que hayas mapeado)
