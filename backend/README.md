@@ -463,7 +463,7 @@ El archivo `application.properties` es el corazón de la configuración de Sprin
 
 ####  Contenido del archivo
 
-```
+
 properties
 # ==========================================
 # Configuración General (común para todos los perfiles)
@@ -514,7 +514,7 @@ management.endpoint.health.show-details=never
 ![img_1.png](assets/img_1.png)
 
 
-### application-docker-properties {#application-docker-properties}
+### application-docker-properties 
 
 Este archivo contiene la configuración **específica para el entorno de contenedores Docker**. Sobrescribe la configuración base (`application.properties`) cuando se activa el perfil `docker`.
 
@@ -526,7 +526,7 @@ Este archivo contiene la configuración **específica para el entorno de contene
 
 ####  Contenido del archivo
 
-```
+
 properties
 # ==========================================
 # Perfil: DOCKER (contenedores)
@@ -578,7 +578,7 @@ Este archivo contiene la configuración **específica para desarrollo local** (I
 
 ####  Contenido del archivo
 
-```
+
 properties
 # ==========================================
 # Perfil: LOCAL (IntelliJ / tu PC)
@@ -636,7 +636,7 @@ MySQL debe estar corriendo: A diferencia del perfil Docker, aquí no se levanta 
 Puerto 3306 disponible: Si tienes otro MySQL corriendo, cambia DB_PORT en las variables de entorno
 Data Science local: El servicio de Python debe estar activo en puerto 8000 para que las predicciones funcionen
 
-## Requisitos previos para Docker {#requisitos-previos-para-docker}
+## Requisitos previos para Docker 
 
 Antes de construir o ejecutar el contenedor es necesario instalar **Docker Desktop** en el equipo; es la aplicación que permite crear, ejecutar y gestionar contenedores:
 
@@ -651,13 +651,14 @@ Pasos de instalación:
 3. Reiniciar el equipo si el instalador lo pide, luego abrir **Docker Desktop** y esperar a que el ícono muestre "Engine running".
 4. Verificar que la instalación quedó correcta abriendo una terminal:
 
-```bash
+bash
 docker --version
 docker compose version
-```
+
 5. Confirmar que el motor de Docker está activo:
 
-```bash
+```
+bash
 docker info
 ```
 
@@ -671,9 +672,10 @@ El backend cuenta con un `Dockerfile` con **build multi-etapa**: la primera etap
 
 ### Archivos involucrados
 
-`backend/Dockerfile`:
+backend/Dockerfile`:
 
-```dockerfile
+
+dockerfile
 # Etapa 1: Compilar con Maven (Java 21)
 FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 WORKDIR /app
@@ -697,16 +699,15 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD wget -qO- http://localhost:8080/actuator/health || exit 1
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
-```
 
-`backend/.dockerignore`:
+backend/.dockerignore`:
 
 ```text
 target/
 .git
 .idea
 *.iml
-```
+
 
 > El `.dockerignore` evita copiar dentro de la imagen la carpeta `target/`, el repositorio `.git` y los archivos del IDE, haciendo el build más rápido y liviano.
 
@@ -719,23 +720,24 @@ docker build -t energia-backend .
 ```
 ### 2 Verificar que la imagen existe:
    Puedes listar todas las imágenes que tienes en tu computadora con:
-```
+
 bash
    docker images
 
 ### 2. Subir el contenedor (ejecutar)
 
-```
+
 bash
 docker run -d --name energia-backend -p 8080:8080 energia-backend
-```
+
 
 - `-d`: ejecuta en segundo plano (detached).
 - `--name`: nombre del contenedor.
 - `-p 8080:8080`: mapea el puerto 8080 del contenedor al 8080 del equipo.
 
 La aplicación queda disponible en `http://localhost:8080`.
-![img.png](img.png)
+
+![img_8.png](img_8.png)
 
 l error 403 Forbidden significa que tu aplicación Spring Boot está funcionando correctamente, 
 pero Spring Security está bloqueando el acceso porque la ruta 
@@ -762,7 +764,7 @@ El healthcheck también se puede abrir en el navegador: `http://localhost:8080/a
 
 ### 4. Bajar el contenedor (detener y eliminar)
 
-```
+
 bash
 # Detener el contenedor
 docker stop energia-backend
@@ -775,15 +777,15 @@ docker rm -f energia-backend
 
 # Volver a subirlo sin reconstruir la imagen
 docker start energia-backend
-```
+
 
 ### Nota
 
 Si se modifica el código del backend, hay que **reconstruir la imagen** (`docker build -t energia-backend .`) o usar `docker compose up -d --build` para que el contenedor incluya los cambios.
 
-```text
+text
 com.hackathon.energia_backend
-```
+
 
 El nombre de paquete usa guion bajo porque `com.hackathon.energia-backend` no es válido en Java.
 
