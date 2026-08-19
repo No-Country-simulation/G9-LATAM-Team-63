@@ -18,7 +18,9 @@ const registerSchema = z
       .string()
       .min(6, 'La contraseña debe tener al menos 6 caracteres')
       .max(100, 'La contraseña no puede superar los 100 caracteres'),
-    confirmPassword: z.string(),
+    confirmPassword: z
+      .string()
+      .min(1, 'Debes confirmar tu contraseña'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',
@@ -41,12 +43,8 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      // FIX: No enviamos confirmPassword al backend — solo se usa para validar en el formulario
-      await mutation.mutateAsync({
-        username: data.username,
-        password: data.password,
-        confirmPassword: data.confirmPassword,
-      })
+      // Enviamos los 3 campos tal como lo espera el backend
+      await mutation.mutateAsync(data)
       navigate('/analizar', { replace: true })
     } catch {
       // El error ya está en mutation.error

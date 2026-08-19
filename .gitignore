@@ -26,3 +26,7 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+# Node.js / Frontend
+node_modules/
+dist/

@@ -1,61 +1,56 @@
-services:
+version: '3.8'
 
-  # ------------------------------------------------------------------
-  # 1. Base de datos
-  # ------------------------------------------------------------------
+services:
   db:
     image: mysql:8.0
     container_name: energia-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword   # cambia esto en producción
-      MYSQL_DATABASE: energia_db
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_ENERGI_AI:-energia_db}
     volumes:
-      - db_data:/var/lib/mysql            # persistencia entre reinicios
+      - db_data:/var/lib/mysql
     ports:
-      - "3307:3306"
+      - "${DB_PORT:-3307}:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD:-rootpassword}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # ------------------------------------------------------------------
-  # 2. Backend (Spring Boot + Flyway)
-  # ------------------------------------------------------------------
   backend:
     build: ./backend
     container_name: energia-backend
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      # Estas variables deben coincidir con las que lees en application.properties
+      SPRING_PROFILES_ACTIVE: docker
       DB_HOST: db
       DB_PORT: 3306
-      DB_NAME: energia_db
-      DB_USER: root
-      DB_PASSWORD: rootpassword
+      DB_ENERGI_AI: ${DB_ENERGI_AI:-energia_db}
+      DB_USER_MYSQL: ${DB_USER_MYSQL:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-rootpassword}
+      DATASCIENCE_URL: http://data-science:8000
     depends_on:
       db:
-        condition: service_healthy   # espera a que MySQL acepte conexiones
+        condition: service_healthy
 
-  # ------------------------------------------------------------------
-  # 3. Frontend (React/Vue servido por Nginx)
-  # ------------------------------------------------------------------
   frontend:
     build: ./frontend
     container_name: energia-frontend
     ports:
       - "3000:80"
 
-  # ------------------------------------------------------------------
-  # 4. API de Data Science (Python)
-  # ------------------------------------------------------------------
   data-science:
     build: ./data-science
     container_name: energia-ds
     ports:
       - "8000:8000"
+
+networks:
+    energia-network:
+      driver: bridge
 
 volumes:
   db_data:

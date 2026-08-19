@@ -1,23 +1,17 @@
-import { forwardRef } from 'react'
+import React from 'react'
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string
+  label?: string
   error?: string
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, id, ...props }, ref) => {
-    const inputId = id || label.toLowerCase().replace(/\s+/g, '-')
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, className = '', ...rest }, ref) => {
     return (
-      <div className="form-field">
-        <label htmlFor={inputId} className="form-field__label">{label}</label>
-        <input
-          ref={ref}
-          id={inputId}
-          className={`form-field__input ${error ? 'form-field__input--error' : ''}`}
-          {...props}
-        />
-        {error && <p className="form-field__error">{error}</p>}
+      <div className={`input-wrapper ${className}`}>
+        {label && <label htmlFor={rest.id}>{label}</label>}
+        <input ref={ref} {...rest} />
+        {error && <span className="input-error">{error}</span>}
       </div>
     )
   }

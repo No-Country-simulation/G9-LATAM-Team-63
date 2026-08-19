@@ -53,7 +53,8 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/webjars/**",
             "/h2-console/**",
-            "/error"                    // Evita 403 en páginas de error de Spring Boot
+            "/error",                   // Evita 403 en páginas de error de Spring Boot
+            "/actuator/health"           // <-- 🔧 CAMBIO: Health check público para Docker
     };
 
     @Bean
