@@ -447,7 +447,7 @@ Proyecto backend para hackathon de consumo energético bajo el paquete base:
 
 ## Configuración
 
-![img_2.png](img_2.png)
+![img_2.png](assets/img_2.png)
 
 ### application.properties
 
@@ -510,8 +510,9 @@ app.datascience.read-timeout-ms=10000
 # ==========================================
 management.endpoints.web.exposure.include=health
 management.endpoint.health.show-details=never
+```
+![img_1.png](assets/img_1.png)
 
-![img_1.png](img_1.png)
 
 ### application-docker-properties {#application-docker-properties}
 
@@ -539,8 +540,9 @@ spring.datasource.password=${DB_PASSWORD:rootpassword}
 
 # API Data Science dentro de Docker
 app.datascience.base-url=${DATASCIENCE_URL:http://data-science:8000}
+```
+![img_3.png](assets/img_3.png)
 
-![img_3.png](img_3.png)
 
 Características Clave
 Sintaxis de Variables de Entorno: ${VARIABLE:valor_por_defecto}
@@ -551,12 +553,12 @@ db: Nombre del servicio de MySQL en docker-compose.yml
 data-science: Nombre del servicio de Python FastAPI
 Flexibilidad: Permite cambiar credenciales y configuraciones sin modificar el código, solo editando el docker-compose.yml o un archivo .env
 
-![img_4.png](img_4.png)
+![img_4.png](assets/img_4.png)
 
 ### Cómo se Activa
 En tu docker-compose.yml, el servicio backend tiene:
 
-![img_5.png](img_5.png)
+![img_5.png](assets/img_5.png)
 
 Spring Boot detecta automáticamente application-docker.properties cuando el perfil activo es docker y sobrescribe las configuraciones del archivo base.
 Nunca hardcodees credenciales en este archivo
@@ -591,20 +593,22 @@ spring.datasource.password=${DB_PASSWORD}
 
 # API Data Science local
 app.datascience.base-url=${DATASCIENCE_URL:http://localhost:8000}
-
-![img_6.png](img_6.png)
+```
+![img_6.png](assets/img_6.png)
 
 Características Clave
 Password sin valor por defecto:
+```
 La línea spring.datasource.password=${DB_PASSWORD} no tiene valor por defecto
 Esto es intencional por seguridad: obliga al desarrollador a definir la variable de entorno
 La línea comentada #spring.datasource.password=${DB_PASSWORD:rootpassword} sirve como referencia
+```
 Hosts Locales:
 localhost: Apunta a tu máquina física
 Puerto 3306: Puerto estándar de MySQL (o el que hayas mapeado)
 Flexibilidad: Puedes sobrescribir cualquier valor desde las variables de entorno de tu sistema operativo o desde IntelliJ IDEA
 
-![img_7.png](img_7.png)
+![img_7.png](assets/img_7.png)
 
 ### Cómo se Activa
 Opción 1: Desde IntelliJ IDEA
