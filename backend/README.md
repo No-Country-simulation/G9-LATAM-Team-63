@@ -21,7 +21,7 @@ Backend REST desarrollado con Spring Boot para analizar consumo energético, cla
 - [Pruebas](#pruebas)
 - [Notas de seguridad](#notas-de-seguridad)
 - [Configuración](#configuración)
-    - [application.properties](#applicationproperties)
+    - [application.properties](#application.properties)
     - [application-docker-properties](#application-docker-properties)
     - [application-local-properties](#application-local-properties)
 - [Requisitos previos para Docker](#requisitos-previos-para-docker)
