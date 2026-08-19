@@ -70,7 +70,7 @@ El proyecto sigue una arquitectura por capas:
 
 ## Estructura de carpetas
 
-```text
+text
 .
 ├── pom.xml
 ├── mvnw
@@ -94,7 +94,7 @@ El proyecto sigue una arquitectura por capas:
     │       └── static/swagger-custom.html
     └── test
         └── java/com/hackathon/energia_backend
-```
+
 
 ## Requisitos previos
 
@@ -109,7 +109,7 @@ La configuración principal está en `src/main/resources/application.properties`
 
 Valores relevantes:
 
-```properties
+properties
 spring.application.name=energia-backend
 server.port=8080
 
@@ -129,7 +129,7 @@ springdoc.api-docs.path=/v3/api-docs
 springdoc.swagger-ui.path=/swagger-ui.html
 
 app.jwt.expiration-ms=86400000
-```
+
 
 La aplicación usa la zona horaria `America/Bogota` por defecto para la JVM y para la serialización JSON.
 
@@ -139,9 +139,9 @@ Desde la raíz del proyecto:
 
 Con Maven instalado:
 
-```bash
+bash
 mvn spring-boot:run
-```
+
 
 Si se restaura el Maven Wrapper:
 
@@ -150,9 +150,9 @@ Si se restaura el Maven Wrapper:
 
 La API queda disponible en:
 
-```text
+text
 http://localhost:8080
-```
+
 
 ## Seguridad y autenticación
 
@@ -160,49 +160,43 @@ La autenticación está implementada con JWT. El endpoint de login es público y
 
 Credenciales actuales para entorno de hackathon:
 
-```text
+text
 Usuario: admin
 Contraseña: hackathon2026
-```
 
 ### Login
 
-```http
+http
 POST /api/auth/login
 Content-Type: application/json
-```
 
 Body:
 
-```json
+json
 {
   "username": "admin",
   "password": "hackathon2026"
 }
-```
-
 Respuesta exitosa:
 
-```json
+json
 {
   "token": "eyJhbGciOiJIUzI1NiJ9..."
 }
-```
 
 ### Uso del token
 
 Para consumir endpoints protegidos:
 
-```http
+http
 Authorization: Bearer <token>
-```
 
 Ejemplo:
 
-```bash
+bash
 curl -X GET http://localhost:8080/api/analisis/1 \
   -H "Authorization: Bearer <token>"
-```
+
 
 ## Documentación Swagger/OpenAPI
 
@@ -220,23 +214,21 @@ El archivo `swagger-custom.html` incluye una interfaz personalizada con manejo v
 
 La aplicación usa H2 en memoria:
 
-```text
+text
 JDBC URL: jdbc:h2:mem:hackathon_db
 Usuario: sa
 Contraseña: sin contraseña
-```
 
 Consola H2:
 
-```text
+text
 http://localhost:8080/h2-console
-```
+
 
 La tabla principal es:
 
-```text
+text
 resultados_analisis
-```
 
 Campos principales persistidos:
 
@@ -267,15 +259,15 @@ Campos principales persistidos:
 
 ## Crear análisis energético
 
-```http
+http
 POST /api/analisis
 Content-Type: application/json
 Authorization: Bearer <token>
-```
+
 
 Body:
 
-```json
+json
 {
   "consumoKwh": 420.5,
   "usoHorarioPico": true,
@@ -283,11 +275,11 @@ Body:
   "tipoInmueble": "Oficina",
   "horasAltoConsumo": 8
 }
-```
+
 
 Respuesta:
 
-```json
+json
 {
   "categoria": "Moderado",
   "probabilidad": 0.7,
@@ -299,29 +291,28 @@ Respuesta:
   "costo_estimado_mensual": 315.375,
   "idAnalisis": 1
 }
-```
+
 
 ## Consultar análisis por ID
 
-```http
+http
 GET /api/analisis/{id}
 Authorization: Bearer <token>
-```
+
 
 Ejemplo:
 
-```bash
+bash
 curl -X GET http://localhost:8080/api/analisis/1 \
   -H "Authorization: Bearer <token>"
-```
+
 
 ## Reglas de negocio
 
 La clasificación se calcula en `AnalisisEnergiaService` usando:
 
-```text
+text
 ratio = consumoKwh / cantidadEquipos
-```
 
 | Condición | Categoría | Probabilidad base |
 | --- | --- | --- |
@@ -331,9 +322,9 @@ ratio = consumoKwh / cantidadEquipos
 
 El costo estimado mensual se calcula con una tarifa fija:
 
-```text
+text
 costo_estimado_mensual = consumoKwh * 0.75
-```
+
 
 La tarifa está definida en:
 
@@ -380,7 +371,7 @@ El DTO `AnalisisRequest` aplica las siguientes validaciones:
 
 Ejemplo de error de validación:
 
-```json
+json
 {
   "error": "Datos de entrada inválidos",
   "detalles": {
@@ -388,7 +379,7 @@ Ejemplo de error de validación:
     "tipoInmueble": "El tipo debe ser Casa, Apartamento, Local u Oficina"
   }
 }
-```
+
 
 ## Manejo de errores
 
@@ -405,16 +396,16 @@ Casos cubiertos:
 
 El proyecto incluye una prueba base de contexto Spring:
 
-```text
+text
 EnergiaBackendApplicationTests.contextLoads()
-```
+
 
 Ejecutar pruebas con Maven instalado:
 
-```bash
+bash
 
 mvn test
-```
+
 
 Si se restaura el Maven Wrapper:
 
@@ -447,7 +438,7 @@ Proyecto backend para hackathon de consumo energético bajo el paquete base:
 
 ## Configuración
 
-![img_2.png](img_2.png)
+![img_2.png](assets/img_2.png)
 
 ### application.properties
 
@@ -511,7 +502,7 @@ app.datascience.read-timeout-ms=10000
 management.endpoints.web.exposure.include=health
 management.endpoint.health.show-details=never
 
-![img_1.png](img_1.png)
+![img_1.png](assets/img_1.png)
 
 ### application-docker-properties {#application-docker-properties}
 
@@ -540,7 +531,7 @@ spring.datasource.password=${DB_PASSWORD:rootpassword}
 # API Data Science dentro de Docker
 app.datascience.base-url=${DATASCIENCE_URL:http://data-science:8000}
 
-![img_3.png](img_3.png)
+![img_3.png](assets/img_3.png)
 
 Características Clave
 Sintaxis de Variables de Entorno: ${VARIABLE:valor_por_defecto}
@@ -551,12 +542,12 @@ db: Nombre del servicio de MySQL en docker-compose.yml
 data-science: Nombre del servicio de Python FastAPI
 Flexibilidad: Permite cambiar credenciales y configuraciones sin modificar el código, solo editando el docker-compose.yml o un archivo .env
 
-![img_4.png](img_4.png)
+![img_4.png](assets/img_4.png)
 
 ### Cómo se Activa
 En tu docker-compose.yml, el servicio backend tiene:
 
-![img_5.png](img_5.png)
+![img_5.png](assets/img_5.png)
 
 Spring Boot detecta automáticamente application-docker.properties cuando el perfil activo es docker y sobrescribe las configuraciones del archivo base.
 Nunca hardcodees credenciales en este archivo
@@ -592,7 +583,7 @@ spring.datasource.password=${DB_PASSWORD}
 # API Data Science local
 app.datascience.base-url=${DATASCIENCE_URL:http://localhost:8000}
 
-![img_6.png](img_6.png)
+![img_6.png](assets/img_6.png)
 
 Características Clave
 Password sin valor por defecto:
@@ -604,7 +595,7 @@ localhost: Apunta a tu máquina física
 Puerto 3306: Puerto estándar de MySQL (o el que hayas mapeado)
 Flexibilidad: Puedes sobrescribir cualquier valor desde las variables de entorno de tu sistema operativo o desde IntelliJ IDEA
 
-![img_7.png](img_7.png)
+![img_7.png](assets/img_7.png)
 
 ### Cómo se Activa
 Opción 1: Desde IntelliJ IDEA
@@ -733,7 +724,7 @@ docker run -d --name energia-backend -p 8080:8080 energia-backend
 
 La aplicación queda disponible en `http://localhost:8080`.
 
-![img_8.png](img_8.png)
+![img_8.png](assets/img_8.png)
 
 l error 403 Forbidden significa que tu aplicación Spring Boot está funcionando correctamente, 
 pero Spring Security está bloqueando el acceso porque la ruta 
