@@ -20,7 +20,12 @@ Backend REST desarrollado con Spring Boot para analizar consumo energético, cla
 - [Manejo de errores](#manejo-de-errores)
 - [Pruebas](#pruebas)
 - [Notas de seguridad](#notas-de-seguridad)
-- [Creacion del contenedor de Backend](#Creacion-del-contenedor-de-Backend)
+- [Configuración](#configuración)
+    - [application.properties](#applicationproperties)
+    - [application-docker-properties](#application-docker-properties)
+    - [application-local-properties](#application-local-properties)
+- [Requisitos previos para Docker](#requisitos-previos-para-docker)
+- [Creacion del contenedor de Backend](#creacion-del-contenedor-de-backend)
 
 ## Descripción general
 
@@ -407,6 +412,7 @@ EnergiaBackendApplicationTests.contextLoads()
 Ejecutar pruebas con Maven instalado:
 
 ```bash
+
 mvn test
 ```
 
@@ -439,8 +445,341 @@ Este proyecto está configurado para un entorno de hackathon/desarrollo. Antes d
 
 Proyecto backend para hackathon de consumo energético bajo el paquete base:
 
+## Configuración
+
+![img_2.png](img_2.png)
+
+### application.properties
+
+El archivo `application.properties` es el corazón de la configuración de Spring Boot. Centraliza todos los parámetros necesarios para el funcionamiento del backend, incluyendo:
+
+- **Conexión a base de datos MySQL**
+- **Configuración de JPA/Hibernate** (mapeo objeto-relacional)
+- **Migraciones de base de datos con Flyway**
+- **Documentación API con Swagger/OpenAPI**
+- **Autenticación JWT** (tokens de seguridad)
+- **Comunicación con el servicio de Data Science**
+- **Endpoints de monitoreo y salud**
+
+####  Contenido del archivo
+
+```
+properties
+# ==========================================
+# Configuración General (común para todos los perfiles)
+# ==========================================
+spring.application.name=energia-backend
+server.port=8080
+
+# ==========================================
+# JPA / Hibernate
+# ==========================================
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# ==========================================
+# Flyway
+# ==========================================
+spring.flyway.enabled=true
+spring.flyway.baseline-on-migrate=true
+
+# ==========================================
+# Swagger / OpenAPI
+# ==========================================
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+
+# ==========================================
+# JWT
+# ==========================================
+app.jwt.secret=MiClaveSecretaSuperSeguraDeAlMenos32CaracteresParaJWT!!!
+app.jwt.expiration-ms=86400000
+
+# ==========================================
+# API Data Science (FastAPI)
+# ==========================================
+app.datascience.predict-path=/api/v1/predict/
+app.datascience.connect-timeout-ms=5000
+app.datascience.read-timeout-ms=10000
+
+# ==========================================
+# Expone solo el endpoint de salud para monitoreo básico,
+# ocultando detalles internos de la app por seguridad.
+# ==========================================
+management.endpoints.web.exposure.include=health
+management.endpoint.health.show-details=never
+
+![img_1.png](img_1.png)
+
+### application-docker-properties {#application-docker-properties}
+
+Este archivo contiene la configuración **específica para el entorno de contenedores Docker**. Sobrescribe la configuración base (`application.properties`) cuando se activa el perfil `docker`.
+
+####  Propósito Principal
+
+- **Usa variables de entorno** inyectadas desde `docker-compose.yml` para mayor flexibilidad
+- **Conecta con servicios Docker** usando sus nombres de red internos (`db`, `data-science`)
+- **Permite personalización** sin recompilar la imagen del contenedor
+
+####  Contenido del archivo
+
+```
+properties
+# ==========================================
+# Perfil: DOCKER (contenedores)
+# ==========================================
+
+# Base de datos MySQL dentro de Docker
+spring.datasource.url=jdbc:mysql://${DB_HOST:db}:${DB_PORT:3306}/${DB_ENERGI_AI:energia_db}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=${DB_USER_MYSQL:root}
+spring.datasource.password=${DB_PASSWORD:rootpassword}
+
+# API Data Science dentro de Docker
+app.datascience.base-url=${DATASCIENCE_URL:http://data-science:8000}
+
+![img_3.png](img_3.png)
+
+Características Clave
+Sintaxis de Variables de Entorno: ${VARIABLE:valor_por_defecto}
+Si la variable existe en docker-compose.yml, usa ese valor
+Si no existe, usa el valor por defecto después de :
+Nombres de Host Docker:
+db: Nombre del servicio de MySQL en docker-compose.yml
+data-science: Nombre del servicio de Python FastAPI
+Flexibilidad: Permite cambiar credenciales y configuraciones sin modificar el código, solo editando el docker-compose.yml o un archivo .env
+
+![img_4.png](img_4.png)
+
+### Cómo se Activa
+En tu docker-compose.yml, el servicio backend tiene:
+
+![img_5.png](img_5.png)
+
+Spring Boot detecta automáticamente application-docker.properties cuando el perfil activo es docker y sobrescribe las configuraciones del archivo base.
+Nunca hardcodees credenciales en este archivo
+Usa un archivo .env externo para producción y nunca lo subas al repositorio
+Asegúrate de que los nombres de host (db, data-science) coincidan exactamente con los servicios en docker-compose.yml
+
+### application-local-properties
+
+Este archivo contiene la configuración **específica para desarrollo local** (IntelliJ IDEA o tu PC). Sobrescribe la configuración base (`application.properties`) cuando se activa el perfil `local`.
+
+#### Propósito Principal
+
+- **Desarrollo en máquina local** sin necesidad de Docker
+- **Conecta con servicios corriendo en localhost** (MySQL y Data Science)
+- **Ideal para debugging** y pruebas rápidas desde el IDE
+- **Permite usar variables de entorno** del sistema operativo o valores por defecto
+
+####  Contenido del archivo
+
+```
+properties
+# ==========================================
+# Perfil: LOCAL (IntelliJ / tu PC)
+# ==========================================
+
+# Base de datos MySQL local
+spring.datasource.url=jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_ENERGI_AI:energia_db}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=${DB_USER_MYSQL:root}
+spring.datasource.password=${DB_PASSWORD}
+#spring.datasource.password=${DB_PASSWORD:rootpassword}
+
+# API Data Science local
+app.datascience.base-url=${DATASCIENCE_URL:http://localhost:8000}
+
+![img_6.png](img_6.png)
+
+Características Clave
+Password sin valor por defecto:
+La línea spring.datasource.password=${DB_PASSWORD} no tiene valor por defecto
+Esto es intencional por seguridad: obliga al desarrollador a definir la variable de entorno
+La línea comentada #spring.datasource.password=${DB_PASSWORD:rootpassword} sirve como referencia
+Hosts Locales:
+localhost: Apunta a tu máquina física
+Puerto 3306: Puerto estándar de MySQL (o el que hayas mapeado)
+Flexibilidad: Puedes sobrescribir cualquier valor desde las variables de entorno de tu sistema operativo o desde IntelliJ IDEA
+
+![img_7.png](img_7.png)
+
+### Cómo se Activa
+Opción 1: Desde IntelliJ IDEA
+Ve a Run → Edit Configurations
+En Active profiles escribe: local
+En Environment variables agrega:
+
+DB_HOST=localhost;DB_PORT=3306;DB_ENERGI_AI=energia_db;DB_USER_MYSQL=root;DB_PASSWORD=tuPassword
+
+Opción 2: Desde línea de comandos
+
+# Windows PowerShell
+$env:SPRING_PROFILES_ACTIVE="local"
+$env:DB_PASSWORD="tuPassword"
+mvn spring-boot:run
+
+# Linux/Mac
+export SPRING_PROFILES_ACTIVE=local
+export DB_PASSWORD="tuPassword"
+mvn spring-boot:run
+
+Importante
+Nunca subas credenciales reales al repositorio: Si usas un archivo .env local, agrégalo a .gitignore
+MySQL debe estar corriendo: A diferencia del perfil Docker, aquí no se levanta automáticamente
+Puerto 3306 disponible: Si tienes otro MySQL corriendo, cambia DB_PORT en las variables de entorno
+Data Science local: El servicio de Python debe estar activo en puerto 8000 para que las predicciones funcionen
+
+## Requisitos previos para Docker {#requisitos-previos-para-docker}
+
+Antes de construir o ejecutar el contenedor es necesario instalar **Docker Desktop** en el equipo; es la aplicación que permite crear, ejecutar y gestionar contenedores:
+
+- **Descarga oficial (Windows / Mac / Linux):** <https://www.docker.com/products/docker-desktop/>
+- **Guía oficial de instalación:** <https://docs.docker.com/get-started/get-docker/>
+- **Guía específica para Windows:** <https://docs.docker.com/desktop/setup/install/windows-install/>
+
+Pasos de instalación:
+
+1. Descargar el instalador correspondiente a tu sistema operativo desde la página oficial de descarga.
+2. Ejecutar el instalador. En Windows, aceptar habilitar **WSL 2** cuando lo solicite (el asistente lo configura automáticamente).
+3. Reiniciar el equipo si el instalador lo pide, luego abrir **Docker Desktop** y esperar a que el ícono muestre "Engine running".
+4. Verificar que la instalación quedó correcta abriendo una terminal:
+
+```bash
+docker --version
+docker compose version
+```
+5. Confirmar que el motor de Docker está activo:
+
+```bash
+docker info
+```
+
+> ⚠️ Sin Docker Desktop instalado y en ejecución, los comandos `docker build` o `docker run` fallarán con errores como "command not found" o "cannot connect to the Docker daemon".
+
+
+
+## Creacion del contenedor de Backend
+
+El backend cuenta con un `Dockerfile` con **build multi-etapa**: la primera etapa compila el proyecto con Maven (Java 21) y la segunda ejecuta el JAR resultante sobre un JRE ligero, con un `HEALTHCHECK` sobre `/actuator/health`.
+
+### Archivos involucrados
+
+`backend/Dockerfile`:
+
+```dockerfile
+# Etapa 1: Compilar con Maven (Java 21)
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Etapa 2: Ejecutar con JRE ligero (Java 21)
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+# Instalar wget para el healthcheck
+RUN apk add --no-cache wget
+
+COPY --from=builder /app/target/*.jar app.jar
+EXPOSE 8080
+
+# HEALTHCHECK antes del ENTRYPOINT
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+```
+
+`backend/.dockerignore`:
+
+```text
+target/
+.git
+.idea
+*.iml
+```
+
+> El `.dockerignore` evita copiar dentro de la imagen la carpeta `target/`, el repositorio `.git` y los archivos del IDE, haciendo el build más rápido y liviano.
+
+### 1. Construir la imagen
+
+Desde la carpeta `backend`:
+
+```bash
+docker build -t energia-backend .
+```
+### 2 Verificar que la imagen existe:
+   Puedes listar todas las imágenes que tienes en tu computadora con:
+```
+bash
+   docker images
+
+### 2. Subir el contenedor (ejecutar)
+
+```
+bash
+docker run -d --name energia-backend -p 8080:8080 energia-backend
+```
+
+- `-d`: ejecuta en segundo plano (detached).
+- `--name`: nombre del contenedor.
+- `-p 8080:8080`: mapea el puerto 8080 del contenedor al 8080 del equipo.
+
+La aplicación queda disponible en `http://localhost:8080`.
+![img.png](img.png)
+
+l error 403 Forbidden significa que tu aplicación Spring Boot está funcionando correctamente, 
+pero Spring Security está bloqueando el acceso porque la ruta 
+/ (la raíz de http://localhost:8080) no está configurada como pública y no has enviado 
+credenciales de autenticación
+
+### 3. Verificar logs y estado
+
+```bash
+# Ver logs en tiempo real (Ctrl + C para salir)
+docker logs -f energia-backend
+
+# Ver solo las últimas 100 líneas
+docker logs --tail 100 energia-backend
+
+# Ver contenedores en ejecución y su estado
+docker ps
+
+# Ver el resultado del healthcheck (healthy / starting / unhealthy)
+docker inspect --format='{{.State.Health.Status}}' energia-backend
+```
+
+El healthcheck también se puede abrir en el navegador: `http://localhost:8080/actuator/health`.
+
+### 4. Bajar el contenedor (detener y eliminar)
+
+```
+bash
+# Detener el contenedor
+docker stop energia-backend
+
+# Eliminar el contenedor una vez detenido
+docker rm energia-backend
+
+# O detener y eliminar en un solo paso
+docker rm -f energia-backend
+
+# Volver a subirlo sin reconstruir la imagen
+docker start energia-backend
+```
+
+### Nota
+
+Si se modifica el código del backend, hay que **reconstruir la imagen** (`docker build -t energia-backend .`) o usar `docker compose up -d --build` para que el contenedor incluya los cambios.
+
 ```text
 com.hackathon.energia_backend
 ```
 
 El nombre de paquete usa guion bajo porque `com.hackathon.energia-backend` no es válido en Java.
+

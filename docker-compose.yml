@@ -48,5 +48,9 @@ services:
     ports:
       - "8000:8000"
 
+networks:
+    energia-network:
+      driver: bridge
+
 volumes:
   db_data:

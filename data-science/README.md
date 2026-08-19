@@ -92,19 +92,15 @@ data-science/
 │
 ├── scripts/
 │   └── generador_datos.py         # Script con funciones para generar datasets
-│
-├── Dockerfile
-├── README.md                      # Este archivo
 ├── requirements.txt               # Dependencias del entorno
-├── .dockerignore
-└── .gitignore
+└── README.md                      # Este archivo
 ```
 
 ---
 
 ## Requisitos previos
 
-- **Python 3.12 o superior**.
+- **Python 3.11 o superior**.
 - **pip** (gestor de paquetes de Python).
 - **venv** para crear un entorno virtual aislado.
 
