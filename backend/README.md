@@ -504,7 +504,7 @@ management.endpoint.health.show-details=never
 
 ![img_1.png](assets/img_1.png)
 
-### application-docker-properties {#application-docker-properties}
+### application-docker-properties 
 
 Este archivo contiene la configuración **específica para el entorno de contenedores Docker**. Sobrescribe la configuración base (`application.properties`) cuando se activa el perfil `docker`.
 
@@ -623,7 +623,7 @@ MySQL debe estar corriendo: A diferencia del perfil Docker, aquí no se levanta 
 Puerto 3306 disponible: Si tienes otro MySQL corriendo, cambia DB_PORT en las variables de entorno
 Data Science local: El servicio de Python debe estar activo en puerto 8000 para que las predicciones funcionen
 
-## Requisitos previos para Docker {#requisitos-previos-para-docker}
+## Requisitos previos para Docker 
 
 Antes de construir o ejecutar el contenedor es necesario instalar **Docker Desktop** en el equipo; es la aplicación que permite crear, ejecutar y gestionar contenedores:
 
