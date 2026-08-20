@@ -5,11 +5,7 @@ package com.hackathon.energia_backend.dto.request;
 // Jakarta Validation proporciona restricciones
 // para validar la entrada antes de que llegue a la lógica de negocio
 // ============================================
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 /**
@@ -29,8 +25,12 @@ public class AnalisisRequest {
     // Campo: Consumo Energético
     // Reglas: No nulo y estrictamente mayor a cero
     // ============================================
+    //@NotNull(message = "El consumo en kWh es obligatorio")
+    //@DecimalMin(value = "0.1", message = "El consumo debe ser mayor a 0")
+    //private Double consumoKwh;
     @NotNull(message = "El consumo en kWh es obligatorio")
-    @DecimalMin(value = "0.1", message = "El consumo debe ser mayor a 0")
+    @DecimalMin(value = "80", message = "El consumo mínimo permitido es 80 kWh")
+    @DecimalMax(value = "1500", message = "El consumo máximo permitido es 1500 kWh")
     private Double consumoKwh;
 
     // ============================================
@@ -45,8 +45,8 @@ public class AnalisisRequest {
     // Reglas: No nulo, rango válido entre 1 y 50 equipos
     // ============================================
     @NotNull(message = "La cantidad de equipos es obligatoria")
-    @Min(value = 1, message = "Debe haber al menos 1 equipo")
-    @Max(value = 50, message = "La cantidad máxima de equipos es 50")
+    @Min(value = 2, message = "Debe haber al menos 2 equipo")
+    @Max(value = 25, message = "La cantidad máxima de equipos es 25")
     private Integer cantidadEquipos;
 
     // ============================================
@@ -64,8 +64,8 @@ public class AnalisisRequest {
     // Reglas: No nulo, rango válido entre 0 y 24 horas (límite físico del día)
     // ============================================
     @NotNull(message = "Las horas de alto consumo son obligatorias")
-    @Min(value = 0, message = "Las horas no pueden ser negativas")
-    @Max(value = 24, message = "Las horas no pueden exceder 24")
+    @Min(value = 2, message = "Las horas no pueden ser menores a 2")
+    @Max(value = 16, message = "Las horas no pueden exceder 16")
     private Integer horasAltoConsumo;
 
     // ============================================
