@@ -1,5 +1,5 @@
 // Estadísticas verificables con el funcionamiento real de la aplicación:
-// perfiles del modelo, variables del análisis, lógica de ahorro y API local.
+// modelo XGBoost, probabilidades por clase, API real y 9 variables.
 export const stats = [
   {
     number: '3',
@@ -10,19 +10,19 @@ export const stats = [
   {
     number: '9',
     label: 'Variables analizadas',
-    desc: 'consumo, equipos, horarios e inmueble',
+    desc: 'consumo, equipos, horarios e inmueble (entre otras)',
     gradient: 'linear-gradient(135deg, #2563eb, #3b82f6)',
   },
   {
-    number: '5–30%',
-    label: 'Ahorro potencial',
-    desc: 'estimado según el perfil obtenido',
+    number: 'XGBoost',
+    label: 'Motor de clasificación',
+    desc: 'con probabilidades por clase (distancias)',
     gradient: 'linear-gradient(135deg, #3b82f6, #6366f1)',
   },
   {
     number: '<1s',
     label: 'Tiempo de respuesta',
-    desc: 'de la API REST local',
+    desc: 'de la API REST en producción',
     gradient: 'linear-gradient(135deg, #6366f1, #7c3aed)',
   },
 ]

@@ -281,13 +281,13 @@
 }
 
 .float-badge--savings {
-  top: -20px;
+  top: -45px;
   right: -20px;
   animation: badge-float 5s ease-in-out infinite;
 }
 
 .float-badge--alert {
-  bottom: 60px;
+  bottom: -45px;
   left: -30px;
   animation: badge-float 7s ease-in-out infinite reverse;
 }

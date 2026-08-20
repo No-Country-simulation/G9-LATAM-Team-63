@@ -1,6 +1,4 @@
 import { Icon, type IconName } from '../../../shared/components/Icons'
-import { compareToAverage, annualized } from '../../../data/services/insights'
-import { PROMEDIO_KWH_MENSUAL, TARIFA_KWH } from '../../../config/constants'
 import type { AnalysisInput } from '../../../data/types/analysis'
 
 interface Props {
@@ -15,9 +13,6 @@ const inmuebleIcon: Record<AnalysisInput['tipoInmueble'], IconName> = {
 }
 
 export default function InputSummary({ input }: Props) {
-  const { pct } = compareToAverage(input.consumoKwh)
-  const arribaPromedio = pct > 0
-
   const items: { icon: IconName; label: string; value: string }[] = [
     { icon: 'zap', label: 'Consumo mensual', value: `${input.consumoKwh} kWh` },
     { icon: 'plug', label: 'Equipos', value: String(input.cantidadEquipos) },
@@ -32,17 +27,8 @@ export default function InputSummary({ input }: Props) {
 
   return (
     <div className="glass-card result-card result-card--full">
-      <div className="result-card__head">
-        <p className="result-card__label">Tu consumo registrado</p>
-        <span
-          className={`avg-chip ${arribaPromedio ? 'avg-chip--warn' : 'avg-chip--ok'}`}
-        >
-          {arribaPromedio
-            ? `${pct}% sobre el promedio de ${PROMEDIO_KWH_MENSUAL} kWh`
-            : `${Math.abs(pct)}% bajo el promedio de ${PROMEDIO_KWH_MENSUAL} kWh`}
-        </span>
-      </div>
-      <div className="input-chips">
+      <p className="result-card__label">Tu consumo registrado</p>
+      <div className="input-chips input-chips--3col">
         {items.map((item) => (
           <div className="input-chip" key={item.label}>
             <Icon name={item.icon} size={16} />
@@ -53,9 +39,6 @@ export default function InputSummary({ input }: Props) {
           </div>
         ))}
       </div>
-      <p className="input-summary__foot">
-        Costo anual equivalente: <strong>${annualized(input.consumoKwh * TARIFA_KWH).toFixed(2)}</strong>
-      </p>
     </div>
   )
 }

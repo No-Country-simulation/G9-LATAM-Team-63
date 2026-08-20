@@ -27,7 +27,7 @@ export const features: Feature[] = [
     iconClass: 'feature-card__icon--amber',
     title: 'Estimación financiera',
     description:
-      'Conoce exactamente cuánto estás gastando y proyecta tu ahorro potencial con base en una tarifa de referencia transparente de $0.75/kWh.',
+      'Conoce exactamente cuánto estás gastando cada mes, con base en la tarifa de referencia transparente de $0.75/kWh.',
   },
   {
     icon: 'robot',
@@ -48,6 +48,6 @@ export const features: Feature[] = [
     iconClass: 'feature-card__icon--teal',
     title: 'Infraestructura en la nube',
     description:
-      'Desplegado sobre Oracle Cloud Infrastructure garantizando disponibilidad, escalabilidad y seguridad de tus datos energéticos.',
+      'Desplegado en la nube garantizando disponibilidad, escalabilidad y seguridad de tus datos energéticos.',
   },
 ]

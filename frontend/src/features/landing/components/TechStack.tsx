@@ -1,5 +1,5 @@
 import { techs } from '../data/techs'
-import { TechIcon, Icon } from '../../../shared/components/Icons'
+import { TechIcon } from '../../../shared/components/Icons'
 
 export default function TechStack() {
   return (
@@ -27,30 +27,6 @@ export default function TechStack() {
           ))}
         </div>
 
-        <div className="glass-card oci-highlight" role="complementary" aria-label="Integración con Oracle Cloud Infrastructure">
-          <div className="oci-highlight__icon" aria-hidden="true">
-            <Icon name="cloud" size={28} />
-          </div>
-          <div>
-            <h3 className="oci-highlight__title">
-              Integración completa con Oracle Cloud Infrastructure (OCI)
-            </h3>
-            <p className="oci-highlight__desc">
-              La solución utiliza <strong style={{ color: 'var(--color-accent-secondary)' }}>Object Storage</strong> para
-              almacenar modelos serializados, <strong style={{ color: 'var(--color-accent-secondary)' }}>OCI Compute</strong> para
-              alojar la API Spring Boot y <strong style={{ color: 'var(--color-accent-secondary)' }}>OCI Functions</strong> para
-              procesamiento de análisis en batch.
-            </p>
-          </div>
-          <div className="oci-highlight__badges">
-            {['Object Storage', 'OCI Compute', 'OCI Functions'].map((s) => (
-              <span key={s} className="oci-badge">
-                <Icon name="check" size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                {s}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   )
