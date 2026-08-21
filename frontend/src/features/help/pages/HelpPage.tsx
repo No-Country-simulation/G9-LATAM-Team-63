@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: '¿Mis datos están seguros?',
-    a: 'Sí. Todos los datos se procesan de forma anónima y se almacenan de manera segura en Oracle Cloud Infrastructure, cumpliendo con estándares de protección de datos.',
+    a: 'Sí. Todos los datos se procesan de forma anónima y se almacenan de manera segura en la nube, cumpliendo con estándares de protección de datos.',
   },
   {
     q: '¿Puedo integrar la API con mi sistema?',

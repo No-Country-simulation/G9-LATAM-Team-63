@@ -9,18 +9,18 @@ interface Tech {
 export const techs: Tech[] = [
   {
     icon: 'python',
-    name: 'Python & Scikit-Learn',
-    desc: 'Modelos supervisados: Regresión Logística, Random Forest y Árboles de Decisión para clasificación de perfiles energéticos.',
+    name: 'Python & XGBoost',
+    desc: 'Modelo XGBoost entrenado con datos reales para clasificación de perfiles energéticos. Devuelve categoría, probabilidad exacta y distribución por clase (distancias).',
   },
   {
     icon: 'cloud',
-    name: 'Oracle Cloud (OCI)',
-    desc: 'Object Storage para modelos, OCI Compute para la API y OCI Functions para procesamiento escalable bajo demanda.',
+    name: 'Cloud Computing',
+    desc: 'Almacenamiento de modelos serializados, procesamiento escalable y alojamiento de alta disponibilidad para la API en la nube.',
   },
   {
     icon: 'coffee',
     name: 'Java Spring Boot',
-    desc: 'API REST robusta con validación de entrada, manejo de errores, documentación OpenAPI y alta capacidad de respuesta.',
+    desc: 'API REST robusta que actúa como proxy hacia el servicio Python: valida entradas, maneja errores, expone historial y gestión de usuarios con JWT.',
   },
   {
     icon: 'atom',

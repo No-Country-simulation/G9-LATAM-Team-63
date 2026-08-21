@@ -3,6 +3,7 @@ package com.hackathon.energia_backend.config;
 import com.hackathon.energia_backend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -40,6 +42,11 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    // Orígenes CORS permitidos (env var APP_CORS_ORIGINS, separados por coma).
+    // El default cubre desarrollo local; en producción se sobreescribe con el dominio real del frontend.
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
 
     // =========================================================================
     // 1. Lista centralizada de rutas públicas (evita duplicar en el filtro JWT)
@@ -120,17 +127,22 @@ public class SecurityConfig {
 
     /**
      * Configuración CORS para permitir peticiones desde el frontend.
+     * Los orígenes provienen de la variable de entorno APP_CORS_ORIGINS
+     * (separados por coma), con defaults locales para desarrollo.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080",
-                "http://localhost:3000",
-                "http://localhost:4200",
-                "http://localhost:5173"
-        ));
+        List<String> origins = StringUtils.hasText(allowedOrigins)
+                ? Arrays.stream(allowedOrigins.split(","))
+                        .map(String::trim)
+                        .filter(StringUtils::hasText)
+                        .toList()
+                : List.of();
+
+        log.info("[SECURITY] Orígenes CORS permitidos: {}", origins);
+        configuration.setAllowedOrigins(origins);
 
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"

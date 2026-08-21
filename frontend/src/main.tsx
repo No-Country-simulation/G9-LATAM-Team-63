@@ -29,6 +29,7 @@ import './styles/components/form.css'
 import './styles/components/results.css'
 import './styles/components/history.css'
 import './styles/components/auth.css'
+import './styles/components/admin.css'
 
 import App from './App.tsx'
 

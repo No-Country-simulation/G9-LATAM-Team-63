@@ -104,3 +104,16 @@
   content: '→';
   font-weight: 700;
 }
+
+/* Columna de confianza — muestra probabilidad con decimales */
+.history-confidence {
+  font-family: var(--font-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-accent-primary);
+  background: rgba(30, 64, 175, 0.06);
+  border: 1px solid rgba(30, 64, 175, 0.15);
+  border-radius: var(--radius-full);
+  padding: 3px 8px;
+  white-space: nowrap;
+}

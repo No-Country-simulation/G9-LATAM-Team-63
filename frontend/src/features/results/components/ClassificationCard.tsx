@@ -8,6 +8,7 @@ interface Props {
 
 export default function ClassificationCard({ result }: Props) {
   const pct = Math.round(result.probabilidad * 100)
+  const pctExacto = (result.probabilidad * 100).toFixed(5)
   const gaugeStyle = { '--gauge-pct': `${pct * 3.6}deg` } as CSSProperties
 
   return (
@@ -19,6 +20,12 @@ export default function ClassificationCard({ result }: Props) {
           <div className="result-card__sub">
             <strong style={{ color: 'var(--color-accent-primary)' }}>{pct}%</strong>{' '}
             de confianza del modelo
+          </div>
+          <div className="result-card__precision">
+            Precisión exacta:{' '}
+            <strong style={{ color: 'var(--color-accent-primary)', fontFamily: 'var(--font-primary)' }}>
+              {pctExacto}%
+            </strong>
           </div>
           <ProfileBadge profile={result.categoria} />
         </div>

@@ -5,7 +5,7 @@ const trustItems = [
   { icon: 'lock' as const, text: 'Datos seguros' },
   { icon: 'zap' as const, text: 'Resultados instantáneos' },
   { icon: 'leaf' as const, text: 'Impacto sostenible' },
-  { icon: 'cloud' as const, text: 'Powered by OCI' },
+  { icon: 'cloud' as const, text: 'Cloud Powered' },
 ]
 
 export default function CTA() {

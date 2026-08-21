@@ -58,6 +58,7 @@ export default function HistoryPage() {
                   <th>Equipos</th>
                   <th>Perfil</th>
                   <th>Costo est.</th>
+                  <th>Confianza</th>
                   <th></th>
                 </tr>
               </thead>
@@ -73,6 +74,11 @@ export default function HistoryPage() {
                       </span>
                     </td>
                     <td>${entry.result.costo_estimado_mensual.toFixed(2)}</td>
+                    <td>
+                      <span className="history-confidence">
+                        {(entry.result.probabilidad * 100).toFixed(5)}%
+                      </span>
+                    </td>
                     <td className="history-table__action">
                       <Link
                         to={`/resultados/${entry.id}`}

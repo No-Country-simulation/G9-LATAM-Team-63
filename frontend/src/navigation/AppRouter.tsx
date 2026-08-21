@@ -19,6 +19,7 @@ import HistoryPage from '../features/history/pages/HistoryPage'
 import HelpPage from '../features/help/pages/HelpPage'
 import LoginPage from '../features/auth/pages/LoginPage'
 import RegisterPage from '../features/auth/pages/RegisterPage'
+import AdminPage from '../features/admin/pages/AdminPage'
 
 const ResultsPage = lazy(() => import('../features/results/pages/ResultsPage'))
 
@@ -76,6 +77,9 @@ const router = createBrowserRouter([
         children: [
           { path: 'analizar', element: <AnalysisPage /> },
           { path: 'historial', element: <HistoryPage /> },
+          // Panel de admin — protegido por autenticación.
+          // La visibilidad del link en el navbar se controla por rol (JWT).
+          { path: 'admin', element: <AdminPage /> },
         ],
       },
       // ✅ Solo ruta con ID. El backend responde GET /api/analisis/{id}

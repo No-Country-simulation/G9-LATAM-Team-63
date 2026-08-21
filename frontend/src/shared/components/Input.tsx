@@ -8,10 +8,18 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className = '', ...rest }, ref) => {
     return (
-      <div className={`input-wrapper ${className}`}>
-        {label && <label htmlFor={rest.id}>{label}</label>}
-        <input ref={ref} {...rest} />
-        {error && <span className="input-error">{error}</span>}
+      <div className={`form-field ${className}`}>
+        {label && (
+          <label className="form-field__label" htmlFor={rest.id}>
+            {label}
+          </label>
+        )}
+        <input
+          ref={ref}
+          className={`form-field__input ${error ? 'form-field__input--error' : ''}`}
+          {...rest}
+        />
+        {error && <span className="form-field__error">{error}</span>}
       </div>
     )
   }

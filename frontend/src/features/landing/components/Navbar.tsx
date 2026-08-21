@@ -7,6 +7,21 @@ import { Icon } from '../../../shared/components/Icons'
 import { useUiStore } from '../../../store/uiStore'
 import { useAuthStore } from '../../../store/authStore'
 
+// Parsea el payload del JWT para extraer los roles del usuario
+function parseRolesFromToken(token: string | null): string[] {
+  if (!token) return []
+  try {
+    const payload = token.split('.')[1]
+    const decoded = JSON.parse(atob(payload))
+    // Spring Security serializa roles como "authorities" o "roles"
+    const authorities: Array<{ authority: string } | string> =
+      decoded.authorities ?? decoded.roles ?? []
+    return authorities.map((a) => (typeof a === 'string' ? a : a.authority))
+  } catch {
+    return []
+  }
+}
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -14,7 +29,10 @@ export default function Navbar() {
   const location = useLocation()
   const isHome = location.pathname === '/'
   const closeMobileMenu = useUiStore((s) => s.closeMobileMenu)
-  const { isAuthenticated, username, logout } = useAuthStore()
+  const { isAuthenticated, username, logout, token } = useAuthStore()
+
+  const roles = parseRolesFromToken(token)
+  const isAdmin = roles.some((r) => r === 'ADMIN' || r === 'ROLE_ADMIN')
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40)
@@ -38,9 +56,6 @@ export default function Navbar() {
     setUserMenuOpen(false)
     closeMobileMenu()
     logout()
-    // Redirección dura a la portada: garantiza salir de rutas protegidas
-    // sin que ProtectedRoute redirija a /login por la carrera de estados
-    // entre el cierre de sesión y la navegación del router.
     window.location.href = '/'
   }
 
@@ -105,6 +120,20 @@ export default function Navbar() {
                       <Icon name="clipboard" size={16} />
                       Mi historial
                     </Link>
+                    {isAdmin && (
+                      <Link
+                        to="/admin"
+                        className="navbar__user-item navbar__user-item--admin"
+                        role="menuitem"
+                        onClick={() => {
+                          setUserMenuOpen(false)
+                          closeMobileMenu()
+                        }}
+                      >
+                        <Icon name="users" size={16} />
+                        Panel de admin
+                      </Link>
+                    )}
                     <button
                       type="button"
                       className="navbar__user-item navbar__user-item--danger"

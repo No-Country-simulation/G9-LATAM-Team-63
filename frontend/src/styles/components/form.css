@@ -10,7 +10,7 @@
 }
 
 .form-card {
-  max-width: 600px;
+  max-width: 620px;
   margin: 0 auto;
   padding: var(--space-xl);
   background: var(--color-bg-secondary);
@@ -39,28 +39,37 @@
 .form-field__label {
   display: block;
   font-family: var(--font-primary);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
 }
 
 .form-field__input {
   width: 100%;
-  padding: 12px 16px;
+  padding: 13px 16px;
   font-family: var(--font-secondary);
   font-size: 0.95rem;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
   outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-field__input:hover {
+  border-color: rgba(30, 64, 175, 0.4);
 }
 
 .form-field__input:focus {
   border-color: var(--color-accent-primary);
-  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+  background: var(--color-bg-secondary);
 }
 
 .form-field__input--error {
@@ -74,7 +83,24 @@
 .form-field__error {
   font-size: 0.78rem;
   color: var(--color-accent-danger);
-  margin-top: 4px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Select con flecha personalizada */
+select.form-field__input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+select.form-field__input option {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
 }
 
 .form-field--checkbox {

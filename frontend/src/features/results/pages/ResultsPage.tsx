@@ -16,9 +16,6 @@ import type { AnalysisInput, AnalysisResult } from '../../../data/types/analysis
 import ClassificationCard from '../components/ClassificationCard'
 import CostEstimate from '../components/CostEstimate'
 import InputSummary from '../components/InputSummary'
-import ClassDistribution from '../components/ClassDistribution'
-import SavingsProjection from '../components/SavingsProjection'
-import Equivalences from '../components/Equivalences'
 import RecommendationsList from '../components/RecommendationsList'
 import ReportActions from '../components/ReportActions'
 import Button from '../../../shared/components/Button'
@@ -136,9 +133,6 @@ export default function ResultsPage() {
           <ClassificationCard result={result} />
           <CostEstimate result={result} />
           {input && <InputSummary input={input} />}
-          <ClassDistribution result={result} />
-          <SavingsProjection result={result} />
-          {input && <Equivalences input={input} />}
           <RecommendationsList result={result} />
           <ReportActions input={input} result={result} fecha={fecha} />
         </div>
