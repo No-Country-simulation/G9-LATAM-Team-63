@@ -16,8 +16,6 @@ Backend REST desarrollado con Spring Boot para analizar consumo energético, cla
     - [application-local.properties](#application-local-properties)
 - [Ejecución local](#ejecución-local)
 - [Docker](#docker)
-    - [Requisitos previos para Docker](#requisitos-previos-para-docker)
-    - [Dockerfile y .dockerignore](#dockerfile-y-dockerignore)
     - [Construir y ejecutar el contenedor](#construir-y-ejecutar-el-contenedor)
     - [Logs, estado y healthcheck](#logs-estado-y-healthcheck)
     - [Detener y eliminar el contenedor](#detener-y-eliminar-el-contenedor)
@@ -42,7 +40,6 @@ Backend REST desarrollado con Spring Boot para analizar consumo energético, cla
 - [Manejo de errores](#manejo-de-errores)
 - [Base de datos](#base-de-datos)
 - [Documentación Swagger/OpenAPI](#documentación-swaggeropenapi)
-- [Pruebas](#pruebas)
 - [Notas de seguridad](#notas-de-seguridad)
 - [Paquete base](#paquete-base)
 
@@ -52,10 +49,12 @@ Backend REST desarrollado con Spring Boot para analizar consumo energético, cla
 
 La aplicación permite registrar análisis de consumo energético a partir de datos como consumo mensual en kWh, uso en horario pico, cantidad de equipos, tipo de inmueble, horas de alto consumo, número de habitantes, antigüedad del inmueble, calefacción y aire acondicionado. Con esa información, el backend:
 
-- Intenta obtener la predicción desde el servicio de **Data Science** (modelo XGBoost).
-- Si el servicio no está disponible, aplica automáticamente un **motor de reglas local** como respaldo (*fallback*).
+- El backend en Java no sabe calcular si un consumo eléctrico es eficiente o no — para eso, le hace una pregunta a otro programa **Data Science** (modelo XGBoost). que sí tiene un "cerebro" entrenado para responder eso, y espera su respuesta para dársela al usuario.
+- Si el servicio no está disponible, aplica automáticamente un **motor de reglas local** como respaldo (*fallback*).El backend siempre intenta primero preguntarle al servicio de Data Science (el modelo XGBoost), Si esa llamada falla (el servicio esta caido, no responde a tiempo, o devuelve un error), el backend detecta ese fallo automaticamente.En vez de devolverle un error al usuario, el backend activa su propia formula matematica simple, ya escrita dentro de su propio codigo (sin necesitar el otro servicio). Esa formula compara el consumo electrico dividido entre la cantidad de equipos, junto con las horas de alto consumo, contra un par de umbrales fijos, para decidir si es Eficiente, Moderado o Ineficiente.El usuario recibe su resultado (categoria, costo estimado y recomendaciones)
 - Clasifica el consumo como `Eficiente`, `Moderado` o `Ineficiente`.
-- Calcula un costo mensual estimado usando una tarifa fija por kWh.
+- Calcula un costo mensual estimado usando una tarifa fija por kWh. El sistema calcula tu costo de luz igual que lo harías tú a mano: multiplica cuántos kWh consumiste por un precio fijo que ya tiene guardado (como si supiera de memoria "cada kWh cuesta tanto").El sistema tiene guardado un precio fijo: 1 kWh = $0.75.
+  Tú registraste, por ejemplo, 1000 kWh de consumo.
+  El sistema hace: 1000 × 0.75 = $750 de costo estimado mensual.
 - Genera recomendaciones según la categoría y los patrones de consumo.
 - Persiste el resultado en MySQL, asociado al usuario autenticado.
 - Permite consultar el historial de análisis del usuario y cada análisis por ID.
@@ -75,7 +74,6 @@ La aplicación permite registrar análisis de consumo energético a partir de da
 | Spring Data JPA | Persistencia y repositorios |
 | MySQL 8 | Base de datos para desarrollo y Docker |
 | Flyway | Migraciones de base de datos |
-| H2 Database (scope test) | Base de datos en memoria solo para pruebas |
 | Jakarta Validation | Validación de DTOs de entrada |
 | Lombok 1.18.38 | Reducción de código repetitivo |
 | SpringDoc OpenAPI 2.6.0 | Documentación interactiva de la API |
@@ -161,13 +159,19 @@ El proyecto sigue una arquitectura por capas:
 
 La configuración se centraliza en `src/main/resources/` y se divide en un archivo base más dos perfiles de entorno.
 
-![Configuración de perfiles del proyecto](assets/img_2.png)
+```
+src/main/resources/
+├── application.properties          (Configuración base)
+├── application-dev.properties      (Desarrollo local)
+├── application-prod.properties     (Producción)
+└── application-docker.properties   (Contenedores Docker)
+```
 
 ### Perfiles de Spring Boot
 
 | Perfil | Uso | Host de conexión |
 | --- | --- | --- |
-| `docker` | Contenedores (activado por `docker-compose.yml`) | `db` (nombre del servicio en la red de Docker) |
+| `docker` | Contenedores (activado por la variable `SPRING_PROFILES_ACTIVE` al ejecutar el contenedor) | `db` (hostname del contenedor de MySQL en la red Docker) |
 | `local` | Desarrollo local (IDE, sin Docker) | `localhost` |
 
 El perfil se activa con la variable `SPRING_PROFILES_ACTIVE`.
@@ -183,57 +187,17 @@ El archivo `application.properties` es el corazón de la configuración de Sprin
 - **Comunicación con el servicio de Data Science** (ruta de predicción y timeouts)
 - **Endpoints de monitoreo y salud**
 
-#### Contenido del archivo
 
-```properties
-# ==========================================
-# Configuración General (común para todos los perfiles)
-# ==========================================
-spring.application.name=energia-backend
-server.port=8080
 
-# ==========================================
-# JPA / Hibernate
-# ==========================================
-spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-
-# ==========================================
-# Flyway
-# ==========================================
-spring.flyway.enabled=true
-spring.flyway.baseline-on-migrate=true
-
-# ==========================================
-# Swagger / OpenAPI
-# ==========================================
-springdoc.api-docs.path=/v3/api-docs
-springdoc.swagger-ui.path=/swagger-ui.html
-
-# ==========================================
-# JWT
-# ==========================================
-app.jwt.secret=MiClaveSecretaSuperSeguraDeAlMenos32CaracteresParaJWT!!!
-app.jwt.expiration-ms=86400000
-
-# ==========================================
-# API Data Science (FastAPI)
-# ==========================================
-app.datascience.predict-path=/api/v1/predict/
-app.datascience.connect-timeout-ms=5000
-app.datascience.read-timeout-ms=10000
-
-# ==========================================
-# Expone solo el endpoint de salud para monitoreo básico,
-# ocultando detalles internos de la app por seguridad.
-# ==========================================
-management.endpoints.web.exposure.include=health
-management.endpoint.health.show-details=never
-```
-
-![Contenido de application.properties](assets/img_1.png)
+| Sección | Propósito | Parámetros clave |
+|---|---|---|
+| **General** | Configura el nombre de la aplicación y el puerto del servidor | `spring.application.name`, `server.port` |
+| **JPA/Hibernate** | Gestiona la conexión ORM con MySQL y muestra consultas SQL | `ddl-auto=update`, `show-sql=true` |
+| **Flyway** | Habilita migraciones versionadas de base de datos | `baseline-on-migrate=true` |
+| **Swagger/OpenAPI** | Configura la documentación interactiva de la API | Rutas `/v3/api-docs` y `/swagger-ui.html` |
+| **JWT** | Define la clave secreta y expiración de tokens (24 horas) | `app.jwt.secret`, `expiration-ms=86400000` |
+| **Data Science** | Configura timeouts y ruta para comunicarse con el microservicio de Python | `connect-timeout-ms=5000`, `read-timeout-ms=10000` |
+| **Actuator** | Expone endpoint de salud para monitoreo, sin revelar detalles internos | `management.endpoints.web.exposure.include=health` |
 
 La zona horaria de la aplicación es configurable mediante la propiedad `app.timezone` (por defecto `UTC`) y se aplica tanto a la JVM (`TimeZoneConfig`) como a la serialización JSON (`JsonConfig`).
 
@@ -247,51 +211,21 @@ Este archivo contiene la configuración **específica para el entorno de contene
 - Conecta con los servicios Docker usando sus nombres de red internos (`db`, `data-science`).
 - Permite personalización sin recompilar la imagen del contenedor.
 
-#### Contenido del archivo
 
-```properties
-# ==========================================
-# Perfil: DOCKER (contenedores)
-# ==========================================
-
-# Base de datos MySQL dentro de Docker
-spring.datasource.url=jdbc:mysql://${DB_HOST:db}:${DB_PORT:3306}/${DB_ENERGI_AI:energia_db}
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.username=${DB_USER_MYSQL:root}
-spring.datasource.password=${DB_PASSWORD:rootpassword}
-
-# API Data Science dentro de Docker
-app.datascience.base-url=${DATASCIENCE_URL:http://data-science:8000}
-```
-
-![Contenido de application-docker.properties](assets/img_3.png)
+| Configuración | Variable de entorno | Valor por defecto | Descripción |
+|---|---|---|---|
+| `DB_HOST` | `${DB_HOST}` | `db` | Hostname del servicio MySQL en la red Docker |
+| `DB_PORT` | `${DB_PORT}` | `3306` | Puerto interno de MySQL (no el mapeado) |
+| `DB_ENERGI_AI` | `${DB_ENERGI_AI}` | `energia_db` | Nombre de la base de datos |
+| `DB_USER_MYSQL` | `${DB_USER_MYSQL}` | `root` | Usuario de MySQL |
+| `DB_PASSWORD` | `${DB_PASSWORD}` | `rootpassword` | Contraseña de MySQL |
+| `DATASCIENCE_URL` | `${DATASCIENCE_URL}` | `http://data-science:8000` | URL del microservicio de Python |
 
 #### Características clave
 
 - **Sintaxis de variables de entorno** `${VARIABLE:valor_por_defecto}`: si la variable existe en `docker-compose.yml`, usa ese valor; si no existe, usa el valor por defecto después de `:`.
 - **Nombres de host Docker**: `db` es el nombre del servicio de MySQL y `data-science` el del servicio de Python FastAPI, ambos definidos en `docker-compose.yml`.
 - **Flexibilidad**: permite cambiar credenciales y configuraciones sin modificar el código, solo editando `docker-compose.yml` o el archivo `.env`.
-
-![Variables de entorno del perfil docker](assets/img_4.png)
-
-#### Cómo se activa
-
-En `docker-compose.yml`, el servicio `backend` activa el perfil y define las variables de entorno:
-
-```yaml
-backend:
-  build: ./backend
-  environment:
-    SPRING_PROFILES_ACTIVE: docker
-    DB_HOST: db
-    DB_PORT: 3306
-    DB_ENERGI_AI: ${DB_ENERGI_AI:-energia_db}
-    DB_USER_MYSQL: ${DB_USER_MYSQL:-root}
-    DB_PASSWORD: ${DB_PASSWORD:-rootpassword}
-    DATASCIENCE_URL: http://data-science:8000
-```
-
-![Configuración del servicio backend en docker-compose.yml](assets/img_5.png)
 
 > Spring Boot detecta automáticamente `application-docker.properties` cuando el perfil activo es `docker` y sobrescribe las configuraciones del archivo base. Nunca hardcodees credenciales en este archivo: usa un archivo `.env` externo y no lo subas al repositorio. Asegúrate de que los nombres de host (`db`, `data-science`) coincidan exactamente con los servicios en `docker-compose.yml`.
 
@@ -306,25 +240,15 @@ Este archivo contiene la configuración **específica para desarrollo local** (I
 - Ideal para debugging y pruebas rápidas desde el IDE.
 - Permite usar variables de entorno del sistema operativo o valores por defecto.
 
-#### Contenido del archivo
 
-```properties
-# ==========================================
-# Perfil: LOCAL (IntelliJ / tu PC)
-# ==========================================
-
-# Base de datos MySQL local
-spring.datasource.url=jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_ENERGI_AI:energia_db}
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.username=${DB_USER_MYSQL:root}
-spring.datasource.password=${DB_PASSWORD}
-#spring.datasource.password=${DB_PASSWORD:rootpassword}
-
-# API Data Science local
-app.datascience.base-url=${DATASCIENCE_URL:http://localhost:8000}
-```
-
-![Contenido de application-local.properties](assets/img_6.png)
+| Configuración | Variable de entorno | Valor por defecto | Descripción |
+|---|---|---|---|
+| `DB_HOST` | `${DB_HOST}` | `localhost` | Host de MySQL en tu máquina local |
+| `DB_PORT` | `${DB_PORT}` | `3306` | Puerto de MySQL (el mapeado en tu PC) |
+| `DB_ENERGI_AI` | `${DB_ENERGI_AI}` | `energia_db` | Nombre de la base de datos |
+| `DB_USER_MYSQL` | `${DB_USER_MYSQL}` | `root` | Usuario de MySQL |
+| `DB_PASSWORD` | `${DB_PASSWORD}` | *(vacío)* | Contraseña de MySQL (requerida, sin valor por defecto) |
+| `DATASCIENCE_URL` | `${DATASCIENCE_URL}` | `http://localhost:8000` | URL del microservicio de Python |
 
 #### Características clave
 
@@ -343,8 +267,13 @@ app.datascience.base-url=${DATASCIENCE_URL:http://localhost:8000}
 ```text
 DB_HOST=localhost;DB_PORT=3306;DB_ENERGI_AI=energia_db;DB_USER_MYSQL=root;DB_PASSWORD=tuPassword
 ```
-
-![Configuración del perfil local en IntelliJ IDEA](assets/img_7.png)
+| Característica | application.properties | application-local.properties | application-docker.properties |
+|---|---|---|---|
+| Entorno | Base común | Desarrollo local (PC/IDE) | Contenedores Docker |
+| Base de datos | Configuración base | `localhost:3306` | `db:3306` (red Docker) |
+| Data Science | Configuración base | `localhost:8000` | `data-science:8000` |
+| Password DB | No definido | `${DB_PASSWORD}` (obligatorio) | `${DB_PASSWORD:rootpassword}` |
+| Activación | Siempre activo | `SPRING_PROFILES_ACTIVE=local` | `SPRING_PROFILES_ACTIVE=docker` |
 
 **Opción 2: Desde línea de comandos**
 
@@ -398,81 +327,17 @@ La API queda disponible en:
 ```text
 http://localhost:8080
 ```
-
----
-
 ## Docker
 
-### Requisitos previos para Docker
+Para ejecutar el backend en un contenedor necesitas tener **Docker Desktop instalado y en ejecución**.
 
-Antes de construir o ejecutar el contenedor es necesario instalar **Docker Desktop** en el equipo; es la aplicación que permite crear, ejecutar y gestionar contenedores:
-
-- **Descarga oficial (Windows / Mac / Linux):** <https://www.docker.com/products/docker-desktop/>
-- **Guía oficial de instalación:** <https://docs.docker.com/get-started/get-docker/>
-- **Guía específica para Windows:** <https://docs.docker.com/desktop/setup/install/windows-install/>
-
-Pasos de instalación:
-
-1. Descargar el instalador correspondiente a tu sistema operativo desde la página oficial de descarga.
-2. Ejecutar el instalador. En Windows, aceptar habilitar **WSL 2** cuando lo solicite (el asistente lo configura automáticamente).
-3. Reiniciar el equipo si el instalador lo pide, luego abrir **Docker Desktop** y esperar a que el ícono muestre "Engine running".
-4. Verificar que la instalación quedó correcta abriendo una terminal:
-
-```bash
-docker --version
-docker compose version
-```
-
-5. Confirmar que el motor de Docker está activo:
+Verifica que el motor de Docker esté activo:
 
 ```bash
 docker info
 ```
 
-> Sin Docker Desktop instalado y en ejecución, los comandos `docker build` o `docker run` fallarán con errores como "command not found" o "cannot connect to the Docker daemon".
-
-### Dockerfile y .dockerignore
-
-El backend cuenta con un `Dockerfile` con **build multi-etapa**: la primera etapa compila el proyecto con Maven (Java 21) y la segunda ejecuta el JAR resultante sobre un JRE ligero, con un `HEALTHCHECK` sobre `/actuator/health`.
-
-**`backend/Dockerfile`:**
-
-```dockerfile
-# Etapa 1: Compilar con Maven (Java 21)
-FROM maven:3.9-eclipse-temurin-21-alpine AS builder
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn clean package -DskipTests
-
-# Etapa 2: Ejecutar con JRE ligero (Java 21)
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
-
-# Instalar wget para el healthcheck
-RUN apk add --no-cache wget
-
-COPY --from=builder /app/target/*.jar app.jar
-EXPOSE 8080
-
-# HEALTHCHECK antes del ENTRYPOINT
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-**`backend/.dockerignore`:**
-
-```text
-target/
-.git
-.idea
-*.iml
-```
-
-> El `.dockerignore` evita copiar dentro de la imagen la carpeta `target/`, el repositorio `.git` y los archivos del IDE, haciendo el build más rápido y liviano.
+> Si este comando falla, Docker Desktop no está corriendo. Ábrelo y espera a que el ícono muestre "Engine running" antes de continuar.
 
 ### Construir y ejecutar el contenedor
 
@@ -501,10 +366,6 @@ docker run -d --name energia-backend -p 8080:8080 energia-backend
 - `-p 8080:8080`: mapea el puerto 8080 del contenedor al 8080 del equipo.
 
 La aplicación queda disponible en `http://localhost:8080`.
-
-![Contenedor de backend ejecutándose](assets/img_8.png)
-
-> **Recomendado:** la forma más completa de levantar el backend junto con MySQL y Data Science es desde la raíz del repositorio con `docker compose up -d --build`. Para ejecutar el contenedor de forma aislada, asegúrate de pasar las variables de entorno que espera el perfil `docker` (por ejemplo `SPRING_PROFILES_ACTIVE=docker`, `DB_HOST`, `DB_PASSWORD`, `DATASCIENCE_URL`), tal como lo hace `docker-compose.yml`.
 
 > **Nota sobre el error 403:** el error `403 Forbidden` al abrir `http://localhost:8080/` significa que la aplicación Spring Boot está funcionando correctamente, pero Spring Security está bloqueando el acceso porque la ruta raíz `/` no está configurada como pública y no has enviado credenciales de autenticación. Usa `/swagger-ui.html` o autentícate primero en `/api/auth/login`.
 
@@ -542,9 +403,9 @@ docker rm -f energia-backend
 docker start energia-backend
 ```
 
-> Si se modifica el código del backend, hay que **reconstruir la imagen** (`docker build -t energia-backend .`) o usar `docker compose up -d --build` para que el contenedor incluya los cambios.
+> Si se modifica el código del backend, hay que reconstruir la imagen (`docker build -t energia-backend .`) para que el contenedor incluya los cambios.
 
----
+
 
 ## Seguridad y autenticación
 
@@ -642,7 +503,6 @@ curl -X GET http://localhost:8080/api/analisis/1 \
 | Ruta | Acceso |
 | --- | --- |
 | `/swagger-ui/**`, `/v3/api-docs/**`, `/swagger-custom.html` | Pública |
-| `/h2-console/**` | Pública (desarrollo) |
 | `/actuator/health` | Pública |
 | `POST /api/auth/**` (login y register) | Pública |
 | `POST /api/usuarios` | Solo `ADMIN` |
@@ -749,23 +609,9 @@ Respuesta: lista de `AnalisisHistorialResponse` del usuario autenticado, ordenad
 
 ### Motor de reglas local
 
-Cuando el servicio de Data Science no está disponible, la clasificación se calcula en `AnalisisEnergiaService` con:
-
-```text
-ratio = consumoKwh / cantidadEquipos
-```
-
-| Condición | Categoría | Probabilidad base |
-| --- | --- | --- |
-| `ratio > 55` y `horasAltoConsumo > 7` | `Ineficiente` | `0.75` |
-| `ratio < 28` y `horasAltoConsumo < 4` | `Eficiente` | `0.85` |
-| Cualquier otro caso | `Moderado` | `0.70` |
-
-El costo estimado mensual se calcula con una tarifa fija:
-
-```text
-costo_estimado_mensual = consumoKwh * 0.75
-```
+Cuando el servicio de Data Science no está disponible, `AnalisisEnergiaService` aplica automáticamente un motor de reglas local como respaldo (*fallback*),
+calculando la categoría de eficiencia y el costo estimado mensual sin depender del modelo de Machine Learning. Esto garantiza que el endpoint `POST /api/analisis` 
+siempre devuelva una respuesta, incluso si el servicio externo está caído.
 
 La tarifa está definida en `AppConfig`:
 
@@ -806,12 +652,12 @@ Las recomendaciones dependen de la categoría y de algunos datos de entrada.
 **Categoría Moderado**
 
 - Identificar oportunidades de ahorro en horarios pico.
-- Si el ratio `kWh/equipo` es mayor a `40`, revisar equipos con mayor consumo.
+- Revisar los equipos con mayor consumo individual cuando corresponda.
 
 **Reglas adicionales**
 
 - Si el inmueble es `Oficina`, se recomienda implementar apagado automático al cierre de jornada.
-- Si hay más de `10` equipos, se recomienda considerar reemplazo por modelos con certificación energética.
+- Si la cantidad de equipos es alta, se recomienda considerar reemplazo por modelos con certificación energética.
 
 ---
 
@@ -819,17 +665,17 @@ Las recomendaciones dependen de la categoría y de algunos datos de entrada.
 
 El DTO `AnalisisRequest` aplica las siguientes validaciones:
 
-| Campo | Tipo | Reglas |
-| --- | --- | --- |
-| `consumoKwh` | `Double` | Obligatorio, mínimo `0.1` |
-| `usoHorarioPico` | `Boolean` | Obligatorio |
-| `cantidadEquipos` | `Integer` | Obligatorio, entre `1` y `50` |
+| Campo | Tipo | Reglas                                                          |
+| --- | --- |-----------------------------------------------------------------|
+| `consumoKwh` | `Double` | Obligatorio, mínimo `0.1` y `1500`                              |
+| `usoHorarioPico` | `Boolean` | Obligatorio                                                     |
+| `cantidadEquipos` | `Integer` | Obligatorio, entre `2` y `25`                                   |
 | `tipoInmueble` | `String` | Obligatorio, valores: `Casa`, `Apartamento`, `Local`, `Oficina` |
-| `numeroHabitantes` | `Integer` | Obligatorio, entre `1` y `6` |
-| `antiguedadInmueble` | `Integer` | Obligatorio, entre `0` y `50` |
-| `calefaccion` | `Boolean` | Obligatorio |
-| `aireAcondicionado` | `Boolean` | Obligatorio |
-| `horasAltoConsumo` | `Integer` | Obligatorio, entre `0` y `24` |
+| `numeroHabitantes` | `Integer` | Obligatorio, entre `1` y `6`                                    |
+| `antiguedadInmueble` | `Integer` | Obligatorio, entre `0` y `50`                                   |
+| `calefaccion` | `Boolean` | Obligatorio                                                     |
+| `aireAcondicionado` | `Boolean` | Obligatorio                                                     |
+| `horasAltoConsumo` | `Integer` | Obligatorio, entre `2` y `16`                                   |
 
 Ejemplo de error de validación:
 
@@ -861,7 +707,7 @@ Casos cubiertos:
 
 ## Base de datos
 
-El proyecto usa **MySQL 8** como base de datos principal (H2 solo en scope `test`). La conexión se define según el perfil activo:
+El proyecto usa **MySQL 8** como base de datos principal. La conexión se define según el perfil activo:
 
 | Perfil | JDBC URL | Driver |
 | --- | --- | --- |
@@ -910,28 +756,7 @@ El archivo `swagger-custom.html` incluye una interfaz personalizada con manejo v
 
 ---
 
-## Pruebas
 
-El proyecto incluye una prueba base de contexto Spring:
-
-```text
-EnergiaBackendApplicationTests.contextLoads()
-```
-
-Ejecutar pruebas con Maven instalado:
-
-```bash
-mvn test
-```
-
-Si se restaura el Maven Wrapper:
-
-- Windows: `.\mvnw.cmd test`
-- Linux/macOS: `./mvnw test`
-
-> Las pruebas usan H2 (scope `test`), por lo que no requieren MySQL corriendo.
-
----
 
 ## Notas de seguridad
 
@@ -940,7 +765,6 @@ Este proyecto está configurado para un entorno de hackathon/desarrollo. Antes d
 - Mover `app.jwt.secret` a variables de entorno o gestor de secretos.
 - Reemplazar las credenciales del usuario inicial (`admin`/`hackathon2026`) creadas en `DataInitializer` por un proceso de alta seguro.
 - Ajustar CORS en `SecurityConfig` a los dominios reales del frontend.
-- No exponer la consola H2 ni el detalle del healthcheck en producción.
 - Revisar el tiempo de expiración del JWT según el nivel de riesgo del sistema.
 
 ---
